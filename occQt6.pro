@@ -27,6 +27,7 @@
 # Date:    Jan. 01, 2021                                                     #
 # Version: 1.0                                                               #
 ##############################################################################
+
 include(src/qmake-target-platform.pri)
 include(src/qmake-destination-path.pri)
 
