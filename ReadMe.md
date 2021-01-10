@@ -1,9 +1,11 @@
 # Overview
-* forked from [eryar/occQt](https://github.com/eryar/occQt), but updated to work with OpenCASCADE 7.5.0 and Qt6. 
-* Also uses more modern icons in svg file format
-* Demonstrate the operations for the OpenCASCADE viewer, such as pan, zoom and rotate; the view manipulate mainly by the middle button of the mouse, and left button is used to pick and select;
+* forked from [eryar/occQt](https://github.com/eryar/occQt), combined with [Felipeasg/basicOccWidget](https://github.com/Felipeasg/basicOccWidget) and updated to work with Qt6. 
+* Also uses more modern icons in svg file format from [Lucide](https://github.com/lucide-icons/lucide)
+
 
 # ToDo
+* [wip] Demonstrate the operations for the OpenCASCADE viewer, such as pan, zoom and rotate
+* [wip] Manipulate the view without needing a middle mouse button to be touchpad and MacOS mouse friendly
 * Demonstrate the primitive shape construction algorithms usage, such as box, cone, sphere, cylinder and torus creation;
 * Demonstrate some modeling algorithms, such as prism, revol, loft and fillet, chamfer;
 * Demonstrate boolean operations, such as cut, fuse and common;
@@ -12,12 +14,11 @@
 # Build instructions
 occQt6 requires:
 * Qt6, which can be obtained from [https://www.qt.io](https://www.qt.io/download-qt-installer).
-* OpenCASCADE, which can be obtained from [Open-Cascade-SAS/OCCT](https://github.com/Open-Cascade-SAS/OCCT)
+* OpenCASCADE, which can be obtained from [Open-Cascade-SAS/OCCT](https://github.com/Open-Cascade-SAS/OCCT) or the official download center at [https://old.opencascade.com](https://old.opencascade.com/content/latest-release)
 
-Once both are installed, update the `CASROOT` variable in `occQt6.pro` and run the following:
+Once both libs are installed, update the `CASROOT_INC` and `CASROOT_LIB` variables in `occQt6.pro` and run the following:
 ```
 qmake
 (n)make
 ```
 This creates an executable in the `binaries/<operating system>/release` folder.
-
