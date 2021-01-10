@@ -19,6 +19,7 @@ private:
 
     QToolBar* _toolBar;
 
+    void about();
     void populateToolBar();
 
 };

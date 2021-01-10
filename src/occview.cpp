@@ -38,7 +38,7 @@ static Handle(Graphic3d_GraphicDriver)& GetGraphicDriver()
 occView::occView(QWidget *parent) : QWidget(parent)
 {
     // No Background
-    setBackgroundRole( QPalette::NoRole );
+    setBackgroundRole( QPalette::NoRole);
 
     // set focus policy to threat QContextMenuEvent from keyboard
     setFocusPolicy(Qt::StrongFocus);

@@ -25,6 +25,7 @@ public slots:
     // operations for the view.
     void fitAll() { _myView->FitAll(); _myView->ZFitAll(); _myView->Redraw();}
     void pan()    { _mouseMode = mouseActionMode::DynamicPanning;}
+    void select() { _mouseMode = mouseActionMode::Nothing;}
     void reset()  { _myView->Reset();}
     void rotate() { _mouseMode = mouseActionMode::DynamicRotation;}
     void zoom()   { _mouseMode = mouseActionMode::DynamicZooming;}

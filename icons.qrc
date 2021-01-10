@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/mouse-pointer.svg</file>
+        <file>icons/move.svg</file>
+        <file>icons/rotate-ccw.svg</file>
+        <file>icons/zoom-in.svg</file>
+        <file>icons/reset.svg</file>
+        <file>icons/help-circle.svg</file>
+        <file>icons/box.svg</file>
+    </qresource>
+</RCC>

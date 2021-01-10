@@ -31,7 +31,7 @@
 include(src/qmake-target-platform.pri)
 include(src/qmake-destination-path.pri)
 
-QT       += core gui
+QT       += core gui svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -83,17 +83,20 @@ CONFIG(release, debug|release) {
 }
 
 SOURCES += \
+    src/emptyspacerwidget.cpp \
     src/main.cpp \
     src/occtwidget.cpp \
     src/occview.cpp
 
 HEADERS += \
+    src/emptyspacerwidget.h \
+    src/hirespixmap.h \
     src/occtwidget.h \
     src/occview.h
 
 
 RESOURCES += \
-    res/icons.qrc
+    icons.qrc
 
 macx {
     CASROOT = /usr/local/occt

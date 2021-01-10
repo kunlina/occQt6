@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>rotation.svg</file>
-        <file>select.svg</file>
-        <file>zoom-in.svg</file>
-    </qresource>
-</RCC>
