@@ -16,9 +16,9 @@ occQt6 requires:
 * Qt6, which can be obtained from [https://www.qt.io](https://www.qt.io/download-qt-installer).
 * OpenCASCADE, which can be obtained from [Open-Cascade-SAS/OCCT](https://github.com/Open-Cascade-SAS/OCCT) or the official download center at [https://old.opencascade.com](https://old.opencascade.com/content/latest-release)
 
-Once both libs are installed, update the `CASROOT_INC` and `CASROOT_LIB` variables in `occQt6.pro` and run the following:
+Once both libs are installed, update the `CAS_INC_DIR` and `CAS_LIB_DIR` variables in `occQt6.pro` and run the following:
 ```
 qmake
 (n)make
 ```
-This creates an executable in the `binaries/<operating system>/release` folder.
+This creates an executable in the `binaries/<operating system>/release` folder. You need to set your `PATH` variables to point to both Qt's and OpenCASCADE's dynamic libraries, as well as their dependencies (e.g., freetype or freeimage for OpenCASCADE). 
