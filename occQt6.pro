@@ -38,7 +38,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = occQt6
 TEMPLATE = app
 
-CASROOT = /usr/local/occt
+CAS_INC_DIR = C:/occt/inc
+CAS_LIB_DIR = C:/occt/win64/vc19/lib
 
 # major, minor
 VERSION = 1.0
@@ -99,15 +100,15 @@ RESOURCES += \
     icons.qrc
 
 macx {
-    CASROOT = /usr/local/occt
-    INCLUDEPATH += \
-        $${CASROOT}/include/opencascade/
-
-    LIBS += \
-        -L$${CASROOT}/lib/
-
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.0
 }
+
+win32 {
+    DEFINES = WNT
+}
+
+INCLUDEPATH += $${CAS_INC_DIR}
+LIBS += -L$${CAS_LIB_DIR}
 
 #LIBS +=         \
 #    -lTKernel   \
