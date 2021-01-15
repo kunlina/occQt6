@@ -6,13 +6,13 @@
 
 #include "occview.h"
 
-class occtWidget : public QWidget
+class occWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    occtWidget(QWidget *parent = nullptr);
-    ~occtWidget();
+    occWidget(QWidget *parent = nullptr);
+    ~occWidget() = default;
 
 private:
     occView* _occViewer;

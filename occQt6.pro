@@ -83,18 +83,20 @@ CONFIG(release, debug|release) {
     }
 }
 
-SOURCES += \
-    src/emptyspacerwidget.cpp \
-    src/main.cpp \
-    src/occtwidget.cpp \
-    src/occview.cpp
-
 HEADERS += \
     src/emptyspacerwidget.h \
     src/hirespixmap.h \
-    src/occtwidget.h \
-    src/occview.h
+    src/occview.h \
+    src/occwidget.h \
+    src/occwindow.h
 
+
+SOURCES += \
+    src/emptyspacerwidget.cpp \
+    src/main.cpp \
+    src/occview.cpp \
+    src/occwidget.cpp \
+    src/occwindow.cpp
 
 RESOURCES += \
     icons.qrc
@@ -104,7 +106,7 @@ macx {
 }
 
 win32 {
-    DEFINES = WNT
+    DEFINES += WNT
 }
 
 INCLUDEPATH += $${CAS_INC_DIR}

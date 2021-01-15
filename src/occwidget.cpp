@@ -1,4 +1,4 @@
-#include "occtwidget.h"
+#include "occwidget.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -11,7 +11,7 @@
 #include "emptyspacerwidget.h"
 #include "hirespixmap.h"
 
-occtWidget::occtWidget(QWidget *parent)
+occWidget::occWidget(QWidget *parent)
     : QWidget(parent)
 {
 
@@ -36,15 +36,11 @@ occtWidget::occtWidget(QWidget *parent)
 
 }
 
-occtWidget::~occtWidget()
-{
-}
-
 
 // ------------------------------------------------------------------------------------------------
 // private functions
 // ------------------------------------------------------------------------------------------------
-void occtWidget::about()
+void occWidget::about()
 {
     QString datetime = QStringLiteral(__DATE__) + QStringLiteral(" ") + QStringLiteral(__TIME__);
 
@@ -66,7 +62,7 @@ void occtWidget::about()
 }
 
 
-void occtWidget::populateToolBar()
+void occWidget::populateToolBar()
 {
 
     auto iconSize = _toolBar->iconSize();
@@ -129,7 +125,7 @@ void occtWidget::populateToolBar()
     // add about action
     auto about = new QAction("About", this);
     about->setIcon(hiresPixmap(":/icons/help-circle.svg", iconColor, iconHeight));
-    connect(about, &QAction::triggered, this, &occtWidget::about);
+    connect(about, &QAction::triggered, this, &occWidget::about);
     _toolBar->addAction(about);
 
 

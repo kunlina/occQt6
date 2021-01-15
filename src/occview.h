@@ -95,11 +95,6 @@ private:
 
     void onMouseMove(QMouseEvent* event, QPoint point);
     void onMouseWheel(int flags, QPointF point, QPoint delta);
-
-
-
-signals:
-
 };
 
 #endif // OCCVIEW_H
