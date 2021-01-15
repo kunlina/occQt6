@@ -43,12 +43,15 @@ public:
     ~occWidget() = default;
 
 private:
-    occView* _occViewer;
+    occView* _occView;
 
     QToolBar* _toolBar;
 
     void about();
     void populateToolBar();
+
+    void addBox();
+    void addCone();
 
 };
 #endif // OCCTWIDGET_H

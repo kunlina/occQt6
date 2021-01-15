@@ -44,7 +44,10 @@ public:
     // constructor
     explicit occView(QWidget *parent = nullptr);
 
-    const Handle(AIS_InteractiveContext)& getContext() const;
+    const Handle(AIS_InteractiveContext)& getContext() const
+    {
+        return _context;
+    }
 
 signals:
     void selectionChanged();
@@ -54,7 +57,7 @@ public slots:
     void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void pan()    { _mouseMode = mouseActionMode::DynamicPanning;}
     void select() { _mouseMode = mouseActionMode::Nothing;}
-    void reset()  { _view->Reset();}
+    void reset()  { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void rotate() { _mouseMode = mouseActionMode::DynamicRotation;}
     void zoom()   { _mouseMode = mouseActionMode::DynamicZooming;}
 

@@ -38,6 +38,7 @@
 #include <Aspect_DisplayConnection.hxx>
 
 #include <Graphic3d_GraphicDriver.hxx>
+#include <OpenGl_Context.hxx>
 #include <OpenGl_GraphicDriver.hxx>
 
 #include <TCollection_AsciiString.hxx>
@@ -48,31 +49,10 @@
 // private headers
 #include "occwindow.h"
 
-//#ifdef WNT
-//#include <WNT_Window.hxx>
-//#elif defined(__APPLE__) && !defined(MACOSX_USE_GLX)
-//#include <Cocoa_Window.hxx>
-//#else
-//#undef Bool
-//#undef CursorShape
-//#undef None
-//#undef KeyPress
-//#undef KeyRelease
-//#undef FocusIn
-//#undef FocusOut
-//#undef FontChange
-//#undef Expose
-//#include <Xw_Window.hxx>
-//#endif
-
-//static Handle(Graphic3d_GraphicDriver)& GetGraphicDriver()
-//{
-//    static Handle(Graphic3d_GraphicDriver) aGraphicDriver;
-//    return aGraphicDriver;
-//}
 
 occView::occView(QWidget *parent) : QWidget(parent)
 {
+
     // No Background
     setBackgroundRole( QPalette::NoRole);
 
@@ -244,49 +224,25 @@ void occView::init()
     // Initialize position, color and length of Triedron axes. The scale is a percent of the window width.
     _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, 0.15, V3d_ZBUFFER);
 
-#if 0
-    Handle(OpenGl_GraphicDriver) aGraphicDriver;
+    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
 
-    if(aGraphicDriver.IsNull())
-    {
-        Handle(Aspect_DisplayConnection) aDisplayConnection;
-        aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
+        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
+        // specifies rendering mode
+        aParams.Method = Graphic3d_RM_RAYTRACING;
+        // maximum ray-tracing depth
+        aParams.RaytracingDepth = 3;
+        // enable shadows rendering
+        aParams.IsShadowEnabled = true;
+        // enable specular reflections
+        aParams.IsReflectionEnabled = true;
+        // enable adaptive anti-aliasing
+        aParams.IsAntialiasingEnabled = true;
+        // enable light propagation through transparent media
+        aParams.IsTransparentShadowEnabled = true;
+        // update the view
+        _view->Update();
     }
 
-    TCollection_ExtendedString a3DName ("Visu3D");
-
-    mViewer = new V3d_Viewer (aGraphicDriver,
-                              a3DName.ToExtString(),
-                              "",
-                              1000.0,
-                              V3d_XposYnegZpos,
-                              Quantity_NOC_GRAY30,
-                              V3d_ZBUFFER,
-                              V3d_GOURAUD,
-                              V3d_WAIT,
-                              Standard_True,
-                              Standard_True,
-                              V3d_TEX_NONE);
-
-    mViewer->SetDefaultLights();
-    mViewer->SetLightOn();
-
-
-    mContext = new AIS_InteractiveContext(mViewer);
-
-    if ( mView.IsNull() )
-        mView = mContext->CurrentViewer()->CreateView();
-
-    Handle(OcctWindow) hWnd = new OcctWindow( this );
-    mView->SetWindow (hWnd);
-    if ( !hWnd->IsMapped() )
-    {
-        hWnd->Map();
-    }
-
-    mView->SetBackgroundColor(Quantity_NOC_BLACK);
-    mView->MustBeResized();
-#endif
 }
 
 

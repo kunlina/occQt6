@@ -27,15 +27,22 @@
 include(src/qmake-target-platform.pri)
 include(src/qmake-destination-path.pri)
 
-QT       += core gui svg
+QT       += core gui svg openglwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = occQt6
 TEMPLATE = app
 
+win32 {
 CAS_INC_DIR = C:/occt/inc
 CAS_LIB_DIR = C:/occt/win64/vc19/lib
+}
+
+macx {
+CAS_INC_DIR = /usr/local/occt/include/opencascade/
+CAS_LIB_DIR = /usr/local/occt/lib/
+}
 
 # major, minor
 VERSION = 1.0
@@ -111,33 +118,38 @@ LIBS += -L$${CAS_LIB_DIR}
 #LIBS +=         \
 #    -lTKernel   \
 #    -lTKMath    \
-#    -lTKG3d     \
+##    -lTKG3d     \
 #    -lTKBRep    \
-#    -lTKGeomBase\
-#    -lTKGeomAlgo\
+##    -lTKGeomBase\
+##    -lTKGeomAlgo\
 #    -lTKTopAlgo \
 #    -lTKPrim    \
-#    -lTKBO      \
-#    -lTKBool    \
-#    -lTKOffset  \
+##    -lTKBO      \
+##    -lTKBool    \
+##    -lTKOffset  \
 #    -lTKService \
 #    -lTKV3d     \
 #    -lTKOpenGl  \
-#    -lTKFillet  \
+##    -lTKFillet  \
 #    -lTKXSDRAW
 
-# occt foundation libs
+# occ foundation libs
 LIBS += \
     -lTKernel   \
     -lTKMath    \
 
-# occt visualization libs
+# occ visualization libs
 LIBS += \
     -lTKOpenGl  \
     -lTKService \
     -lTKV3d \
     -lTKXSDRAW
 
+# occ BRep libs
+LIBS += \
+    -lTKBRep \
+    -lTKPrim \
+    -lTKTopAlgo
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

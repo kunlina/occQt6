@@ -31,11 +31,23 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QMessageBox>
-#include <QVBoxLayout>
 #include <QToolBar>
+#include <QVBoxLayout>
 
+// occ headers
 #include <Standard_Version.hxx>
 
+#include <AIS_ColoredShape.hxx>
+#include <TopoDS.hxx>
+
+#include <BRepLib.hxx>
+
+#include <BRepBuilderAPI.hxx>
+#include <BRepPrimAPI_MakeBox.hxx>
+#include <BRepPrimAPI_MakeCone.hxx>
+
+
+// private headers
 #include "emptyspacerwidget.h"
 #include "hirespixmap.h"
 
@@ -51,8 +63,8 @@ occWidget::occWidget(QWidget *parent)
     _toolBar = new QToolBar;
     layout->addWidget(_toolBar);
 
-    _occViewer = new occView(this);
-    layout->addWidget(_occViewer);
+    _occView = new occView(this);
+    layout->addWidget(_occView);
     this->setLayout(layout);
     this->populateToolBar();
 
@@ -80,6 +92,8 @@ void occWidget::about()
                         "occQt6 is a demo application about Qt and OpenCASCADE, "
                         "originally developed by Shing Liu.<br><br>"
                         "Copyright &copy; 2020 Marius Schollmeier<br><br>"
+                        "Lucide icons are licensed under the "
+                        "<a href=\"https://github.com/lucide-icons/lucide/blob/master/LICENSE\">ISC License</a><br><br>"
                         "The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE "
                         "WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
                        ).arg(QT_VERSION_STR, OCC_VERSION_COMPLETE, datetime));
@@ -105,26 +119,26 @@ void occWidget::populateToolBar()
 
     auto selectAction = new QAction("Select", this);
     selectAction->setCheckable(true);
-    selectAction->setIcon(hiresPixmap(":/icons/mouse-pointer.svg", iconColor, iconHeight));
-    connect(selectAction, &QAction::triggered, _occViewer, &occView::select);
+    selectAction->setIcon(hiresPixmap(":/lucideicons/mouse-pointer.svg", iconColor, iconHeight));
+    connect(selectAction, &QAction::triggered, _occView, &occView::select);
     mouseGroup->addAction(selectAction);
 
     auto zoomAction = new QAction("Zoom", this);
     zoomAction->setCheckable(true);
-    zoomAction->setIcon(hiresPixmap(":/icons/zoom-in.svg", iconColor, iconHeight));
-    connect(zoomAction, &QAction::triggered, _occViewer, &occView::zoom);
+    zoomAction->setIcon(hiresPixmap(":/lucideicons/zoom-in.svg", iconColor, iconHeight));
+    connect(zoomAction, &QAction::triggered, _occView, &occView::zoom);
     mouseGroup->addAction(zoomAction);
 
     auto panAction = new QAction("Pan", this);
     panAction->setCheckable(true);
-    panAction->setIcon(hiresPixmap(":/icons/move.svg", iconColor, iconHeight));
-    connect(panAction, &QAction::triggered, _occViewer, &occView::pan);
+    panAction->setIcon(hiresPixmap(":/lucideicons/move.svg", iconColor, iconHeight));
+    connect(panAction, &QAction::triggered, _occView, &occView::pan);
     mouseGroup->addAction(panAction);
 
     auto rotate= new QAction("Rotate", this);
     rotate->setCheckable(true);
-    rotate->setIcon(hiresPixmap(":/icons/rotate-ccw.svg", iconColor, iconHeight));
-    connect(rotate, &QAction::triggered, _occViewer, &occView::rotate);
+    rotate->setIcon(hiresPixmap(":/lucideicons/rotate-ccw.svg", iconColor, iconHeight));
+    connect(rotate, &QAction::triggered, _occView, &occView::rotate);
     mouseGroup->addAction(rotate);
 
     // select first action
@@ -137,22 +151,28 @@ void occWidget::populateToolBar()
 
     // add reset action
     auto reset = new QAction("Reset", this);
-    reset->setIcon(hiresPixmap(":/icons/reset.svg", iconColor, iconHeight));
-    connect(reset, &QAction::triggered, _occViewer, &occView::reset);
+    reset->setIcon(hiresPixmap(":/lucideicons/reset.svg", iconColor, iconHeight));
+    connect(reset, &QAction::triggered, _occView, &occView::reset);
     _toolBar->addAction(reset);
 
     // add separator
     _toolBar->addSeparator();
 
     // add primitives
-    auto cubeAction = new QAction("Cube", this);
-    cubeAction->setIcon(hiresPixmap(":/icons/box.svg", iconColor, iconHeight));
-    //connect(cube, &QAction::triggered, _occViewer, &occView::reset);
-    _toolBar->addAction(cubeAction);
+    auto boxAction = new QAction("Box", this);
+    boxAction->setIcon(hiresPixmap(":/lucideicons/box.svg", iconColor, iconHeight));
+    connect(boxAction, &QAction::triggered, this, &occWidget::addBox);
+    _toolBar->addAction(boxAction);
+
+    auto coneAction = new QAction("Cone", this);
+    coneAction->setIcon(hiresPixmap(":/lucideicons/triangle.svg", iconColor, iconHeight));
+    connect(coneAction, &QAction::triggered, this, &occWidget::addCone);
+    _toolBar->addAction(coneAction);
+
 
     // add about action
     auto about = new QAction("About", this);
-    about->setIcon(hiresPixmap(":/icons/help-circle.svg", iconColor, iconHeight));
+    about->setIcon(hiresPixmap(":/lucideicons/help-circle.svg", iconColor, iconHeight));
     connect(about, &QAction::triggered, this, &occWidget::about);
     _toolBar->addAction(about);
 
@@ -163,3 +183,52 @@ void occWidget::populateToolBar()
 
 
 }
+
+
+void occWidget::addBox()
+{
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(3.0, 4.0, 5.0).Shape();
+
+    Handle(AIS_ColoredShape) aisBoxShaded = new AIS_ColoredShape(topoBox);
+    aisBoxShaded->SetColor(Quantity_NOC_AZURE);
+    _occView->getContext()->Display(aisBoxShaded, AIS_Shaded, 0, Standard_True);
+
+    Handle(AIS_ColoredShape) aisBoxWireframe = new AIS_ColoredShape(topoBox);
+    aisBoxWireframe->SetColor(Quantity_NOC_BLACK);
+    _occView->getContext()->Display(aisBoxWireframe, AIS_WireFrame, -1, Standard_True); // -1 -> cannot be selected
+
+    _occView->fitAll();
+}
+
+
+void occWidget::addCone()
+{
+    gp_Ax2 axis;
+    axis.SetLocation(gp_Pnt(0.0, 10.0, 0.0));
+
+    TopoDS_Shape topoReducer = BRepPrimAPI_MakeCone(axis, 3.0, 1.5, 5.0).Shape();
+
+    Handle(AIS_Shape) aisReducerShaded = new AIS_Shape(topoReducer);
+    aisReducerShaded->SetColor(Quantity_NOC_BISQUE);
+    _occView->getContext()->Display(aisReducerShaded, AIS_Shaded, 0, Standard_True);
+
+    Handle(AIS_Shape) aisReducerWireframe = new AIS_Shape(topoReducer);
+    aisReducerWireframe->SetColor(Quantity_NOC_BLACK);
+    _occView->getContext()->Display(aisReducerWireframe, AIS_WireFrame, -1, Standard_True);
+
+
+    axis.SetLocation(gp_Pnt(8.0, 10.0, 0.0));
+
+    TopoDS_Shape topoCone = BRepPrimAPI_MakeCone(axis, 3.0, 0.0, 5.0).Shape();
+
+    Handle(AIS_Shape) aisConeShaded = new AIS_Shape(topoCone);
+    aisConeShaded->SetColor(Quantity_NOC_CHOCOLATE);
+    _occView->getContext()->Display(aisConeShaded, AIS_Shaded, 0, Standard_True);
+
+    Handle(AIS_Shape) aisConeWireframe = new AIS_Shape(topoCone);
+    aisConeWireframe->SetColor(Quantity_NOC_BLACK);
+    _occView->getContext()->Display(aisConeWireframe, AIS_WireFrame, -1, Standard_True);
+
+    _occView->fitAll();
+}
+
