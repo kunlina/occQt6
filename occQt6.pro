@@ -1,5 +1,6 @@
 ##### MIT ####################################################################
-# This file defines the compilation process for qmake                        #
+# This file is part of occQt6, a simple OpenCASCADE Qt demo, updated         #
+# for Qt6 and OpenCASCADE 7.5.0                                              #
 #                                                                            #
 # Copyright (c) 2021  Marius S. Schollmeier                                  #
 #                                                                            #
@@ -22,11 +23,6 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                     #
 #                                                                            #
 ##############################################################################
-# Author:  Marius Schollmeier                                                #
-# Contact: mschollmeier01@gmail.com                                          #
-# Date:    Jan. 01, 2021                                                     #
-# Version: 1.0                                                               #
-##############################################################################
 
 include(src/qmake-target-platform.pri)
 include(src/qmake-destination-path.pri)
@@ -48,7 +44,7 @@ DEFINES += VERSION_STRING=\\\"$${VERSION}\\\"
 BINARYPATH = $$PWD/binaries/
 DESTDIR = $$BINARYPATH/$$DESTINATION_PATH
 
-BUILDPATH = $$PWD/build/BraggCalculator/
+BUILDPATH = $$PWD/build/
 OBJECTS_DIR = $$BUILDPATH/$$DESTINATION_PATH/.obj
 MOC_DIR = $$BUILDPATH/$$DESTINATION_PATH/.moc
 RCC_DIR = $$BUILDPATH/$$DESTINATION_PATH/.qrc

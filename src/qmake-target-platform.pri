@@ -42,7 +42,12 @@ win32 {
            CONFIG += COMPILER_MSVC2017
            #message(COMPILER_MSVC2017)
            win32-msvc2017:QMAKE_TARGET.arch = x86_64
-        }
+       }
+       win32-msvc2019 {
+            CONFIG += COMPILER_MSVC2019
+            #message(COMPILER_MSVC2017)
+            win32-msvc2019:QMAKE_TARGET.arch = x86_64
+       }
 }
 
 linux {

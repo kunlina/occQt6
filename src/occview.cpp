@@ -1,3 +1,31 @@
+/***** MIT *******************************************************************
+**                                                                          **
+** This file is part of occQt6, a simple OpenCASCADE Qt demo, updated       **
+** for Qt6 and OpenCASCADE 7.5.0                                            **
+**                                                                          **
+** Copyright (c) 2020 Marius Schollmeier (mschollmeier01@gmail.com)         **
+**                                                                          **
+** Permission is hereby granted, free of charge, to any person              **
+** obtaining a copy of this software and associated documentation           **
+** files (the "Software"), to deal in the Software without restriction,     **
+** including without limitation the rights to use, copy, modify, merge,     **
+** publish, distribute, sublicense, and/or sell copies of the Software,     **
+** and to permit persons to whom the Software is furnished to do so,        **
+** subject to the following conditions:                                     **
+**                                                                          **
+** The above copyright notice and this permission notice shall be included  **
+** in all copies or substantial portions of the Software.                   **
+**                                                                          **
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,          **
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES          **
+** OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND                 **
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT              **
+** HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,             **
+** WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,       **
+** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER            **
+** DEALINGS IN THE SOFTWARE.                                                **
+*****************************************************************************/
+
 #include "occview.h"
 
 #include <QDebug>
@@ -6,34 +34,42 @@
 #include <QStyleFactory>
 #include <QWheelEvent>
 
-// occt headers
+// occ headers
 #include <Aspect_DisplayConnection.hxx>
-#include <Aspect_Handle.hxx>
+
+#include <Graphic3d_GraphicDriver.hxx>
 #include <OpenGl_GraphicDriver.hxx>
 
+#include <TCollection_AsciiString.hxx>
+#include <Graphic3d_NameOfMaterial.hxx>
+//#include <V3d_TypeOfSurfaceDetail.hxx>
+#include <Standard_Type.hxx>
 
-#ifdef WNT
-#include <WNT_Window.hxx>
-#elif defined(__APPLE__) && !defined(MACOSX_USE_GLX)
-#include <Cocoa_Window.hxx>
-#else
-#undef Bool
-#undef CursorShape
-#undef None
-#undef KeyPress
-#undef KeyRelease
-#undef FocusIn
-#undef FocusOut
-#undef FontChange
-#undef Expose
-#include <Xw_Window.hxx>
-#endif
+// private headers
+#include "occwindow.h"
 
-static Handle(Graphic3d_GraphicDriver)& GetGraphicDriver()
-{
-    static Handle(Graphic3d_GraphicDriver) aGraphicDriver;
-    return aGraphicDriver;
-}
+//#ifdef WNT
+//#include <WNT_Window.hxx>
+//#elif defined(__APPLE__) && !defined(MACOSX_USE_GLX)
+//#include <Cocoa_Window.hxx>
+//#else
+//#undef Bool
+//#undef CursorShape
+//#undef None
+//#undef KeyPress
+//#undef KeyRelease
+//#undef FocusIn
+//#undef FocusOut
+//#undef FontChange
+//#undef Expose
+//#include <Xw_Window.hxx>
+//#endif
+
+//static Handle(Graphic3d_GraphicDriver)& GetGraphicDriver()
+//{
+//    static Handle(Graphic3d_GraphicDriver) aGraphicDriver;
+//    return aGraphicDriver;
+//}
 
 occView::occView(QWidget *parent) : QWidget(parent)
 {
@@ -65,13 +101,13 @@ QPaintEngine* occView::paintEngine() const
 
 void occView::paintEvent( QPaintEvent* /*event*/ )
 {
-    _myView->Redraw();
+    _view->Redraw();
 }
 
 void occView::resizeEvent( QResizeEvent* /*event*/ )
 {
-    if(!_myView.IsNull())
-        _myView->MustBeResized();
+    if(!_view.IsNull())
+        _view->MustBeResized();
 }
 
 
@@ -138,7 +174,7 @@ void occView::wheelEvent( QWheelEvent* event )
 // ------------------------------------------------------------------------------------------------
 void occView::dragEvent(int x, int y)
 {
-    _myContext->Select(_mouseXmin, _mouseYmin, x, y, _myView, Standard_True);
+    _context->Select(_mouseXmin, _mouseYmin, x, y, _view, Standard_True);
     emit selectionChanged();
 }
 
@@ -172,48 +208,85 @@ void occView::drawRubberBand(int minX, int minY, int maxX, int maxY)
 
 void occView::init()
 {
-    // Create Aspect_DisplayConnection
-    auto aDisplayConnection = new Aspect_DisplayConnection();
 
-    // Get graphic driver if it exists, otherwise initialise it
-    if (GetGraphicDriver().IsNull())
-        GetGraphicDriver() = new OpenGl_GraphicDriver(aDisplayConnection);
+    Handle_Aspect_DisplayConnection aDisplayConnection;
+    Handle_OpenGl_GraphicDriver aGraphicDriver;
 
-    // Get window handle. This returns something suitable for all platforms.
-    auto window_handle = (WId) winId();
+    // 1. Create a 3D viewer.
+    aDisplayConnection = new Aspect_DisplayConnection();
+    aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
 
-    // Create appropriate window for platform
-#ifdef WNT
-    Handle(WNT_Window) wind = new WNT_Window((Aspect_Handle) window_handle);
-#elif defined(__APPLE__) && !defined(MACOSX_USE_GLX)
-    Handle(Cocoa_Window) wind = new Cocoa_Window((NSView *) window_handle);
-#else
-    Handle(Xw_Window) wind = new Xw_Window(aDisplayConnection, (Window) window_handle);
-#endif
+    _viewer = new V3d_Viewer(aGraphicDriver);
 
-    // Create V3dViewer and V3d_View
-    _myViewer = new V3d_Viewer(GetGraphicDriver());
+    // 2. Create an interactive context.
+    _context = new AIS_InteractiveContext(_viewer);
+    _context->SetDisplayMode(AIS_Shaded, Standard_True);
 
-    _myView = _myViewer->CreateView();
+    if ( _view.IsNull() )
+        _view = _context->CurrentViewer()->CreateView();
 
-    _myView->SetWindow(wind);
-    if (!wind->IsMapped()) wind->Map();
+    Handle(occWindow) hWnd = new occWindow( this );
 
-    // Create AISInteractiveContext
-    _myContext = new AIS_InteractiveContext(_myViewer);
+    _view->SetWindow (hWnd);
+    if ( !hWnd->IsMapped() )
+        hWnd->Map();
+
+    _view->MustBeResized();
 
     // Set up lights etc
-    _myViewer->SetDefaultLights();
-    _myViewer->SetLightOn();
+    _viewer->SetDefaultLights();
+    _viewer->SetLightOn();
 
     auto bgcolor = Quantity_Color(.12, .12, .12, Quantity_TOC_sRGB);
-    _myView->SetBackgroundColor(bgcolor);
-    _myView->MustBeResized();
+    _view->SetBackgroundColor(bgcolor);
+    _view->MustBeResized();
 
     // Initialize position, color and length of Triedron axes. The scale is a percent of the window width.
-    _myView->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, 0.15, V3d_ZBUFFER);
+    _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, 0.15, V3d_ZBUFFER);
 
-    _myContext->SetDisplayMode(AIS_Shaded, Standard_True);
+#if 0
+    Handle(OpenGl_GraphicDriver) aGraphicDriver;
+
+    if(aGraphicDriver.IsNull())
+    {
+        Handle(Aspect_DisplayConnection) aDisplayConnection;
+        aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
+    }
+
+    TCollection_ExtendedString a3DName ("Visu3D");
+
+    mViewer = new V3d_Viewer (aGraphicDriver,
+                              a3DName.ToExtString(),
+                              "",
+                              1000.0,
+                              V3d_XposYnegZpos,
+                              Quantity_NOC_GRAY30,
+                              V3d_ZBUFFER,
+                              V3d_GOURAUD,
+                              V3d_WAIT,
+                              Standard_True,
+                              Standard_True,
+                              V3d_TEX_NONE);
+
+    mViewer->SetDefaultLights();
+    mViewer->SetLightOn();
+
+
+    mContext = new AIS_InteractiveContext(mViewer);
+
+    if ( mView.IsNull() )
+        mView = mContext->CurrentViewer()->CreateView();
+
+    Handle(OcctWindow) hWnd = new OcctWindow( this );
+    mView->SetWindow (hWnd);
+    if ( !hWnd->IsMapped() )
+    {
+        hWnd->Map();
+    }
+
+    mView->SetBackgroundColor(Quantity_NOC_BLACK);
+    mView->MustBeResized();
+#endif
 }
 
 
@@ -240,7 +313,7 @@ void occView::onMButtonDown(int flags, QPoint point)
     _mouseYmax = point.y();
 
     if (_mouseMode == mouseActionMode::DynamicRotation)
-        _myView->StartRotation(point.x(), point.y());
+        _view->StartRotation(point.x(), point.y());
 }
 
 
@@ -316,15 +389,15 @@ void occView::onMouseMove(QMouseEvent *event, QPoint point)
         switch (_mouseMode)
         {
         case mouseActionMode::DynamicRotation:
-            _myView->Rotation(point.x(), point.y());
+            _view->Rotation(point.x(), point.y());
             break;
 
         case mouseActionMode::DynamicZooming:
-            _myView->Zoom(_mouseXmin, _mouseYmin, point.x(), point.y());
+            _view->Zoom(_mouseXmin, _mouseYmin, point.x(), point.y());
             break;
 
         case mouseActionMode::DynamicPanning:
-            _myView->Pan(point.x() - _mouseXmax, _mouseYmax - point.y());
+            _view->Pan(point.x() - _mouseXmax, _mouseYmax - point.y());
             _mouseXmax = point.x();
             _mouseYmax = point.y();
             break;
@@ -357,6 +430,6 @@ void occView::onMouseWheel(int flags, QPointF point, QPoint delta)
         aY -= aFactor;
     }
 
-    _myView->Zoom(point.x(), point.y(), aX, aY);
+    _view->Zoom(point.x(), point.y(), aX, aY);
 }
 

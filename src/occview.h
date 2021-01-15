@@ -1,3 +1,31 @@
+/***** MIT *******************************************************************
+**                                                                          **
+** This file is part of occQt6, a simple OpenCASCADE Qt demo, updated       **
+** for Qt6 and OpenCASCADE 7.5.0                                            **
+**                                                                          **
+** Copyright (c) 2020 Marius Schollmeier (mschollmeier01@gmail.com)         **
+**                                                                          **
+** Permission is hereby granted, free of charge, to any person              **
+** obtaining a copy of this software and associated documentation           **
+** files (the "Software"), to deal in the Software without restriction,     **
+** including without limitation the rights to use, copy, modify, merge,     **
+** publish, distribute, sublicense, and/or sell copies of the Software,     **
+** and to permit persons to whom the Software is furnished to do so,        **
+** subject to the following conditions:                                     **
+**                                                                          **
+** The above copyright notice and this permission notice shall be included  **
+** in all copies or substantial portions of the Software.                   **
+**                                                                          **
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,          **
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES          **
+** OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND                 **
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT              **
+** HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,             **
+** WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,       **
+** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER            **
+** DEALINGS IN THE SOFTWARE.                                                **
+*****************************************************************************/
+
 #ifndef OCCVIEW_H
 #define OCCVIEW_H
 
@@ -23,10 +51,10 @@ signals:
 
 public slots:
     // operations for the view.
-    void fitAll() { _myView->FitAll(); _myView->ZFitAll(); _myView->Redraw();}
+    void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void pan()    { _mouseMode = mouseActionMode::DynamicPanning;}
     void select() { _mouseMode = mouseActionMode::Nothing;}
-    void reset()  { _myView->Reset();}
+    void reset()  { _view->Reset();}
     void rotate() { _mouseMode = mouseActionMode::DynamicRotation;}
     void zoom()   { _mouseMode = mouseActionMode::DynamicZooming;}
 
@@ -49,17 +77,15 @@ private:
     void dragEvent(int x, int y);
     void drawRubberBand(int minX, int minY, int maxX, int maxY);
 
-    //! the occ viewer.
-    Handle(V3d_Viewer) _myViewer;
+    // Occ viewer
+    Handle(V3d_Viewer) _viewer;
+    Handle(V3d_View) _view;
 
-    //! the occ view.
-    Handle(V3d_View) _myView;
-
-    //! the occ context.
-    Handle(AIS_InteractiveContext) _myContext;
+    // Occ context
+    Handle(AIS_InteractiveContext) _context;
 
     //! save the degenerate mode state.
-    Standard_Boolean _degenerateModeIsOn;
+    //Standard_Boolean _degenerateModeIsOn;
 
     //! rubber rectangle for the mouse selection.
     QRubberBand* _rectBand = nullptr;
