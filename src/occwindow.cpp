@@ -140,8 +140,8 @@ Standard_Real occWindow::Ratio() const
 
 void occWindow::Size(Standard_Integer &theWidth, Standard_Integer &theHeight) const
 {
-    theWidth = _myWidget->rect().right();
-    theHeight = _myWidget->rect().bottom();
+    theWidth = _myWidget->devicePixelRatioF() * _myWidget->rect().right();
+    theHeight = _myWidget->devicePixelRatioF() * _myWidget->rect().bottom();
 }
 
 

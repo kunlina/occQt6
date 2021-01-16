@@ -221,27 +221,28 @@ void occView::init()
     _view->SetBackgroundColor(bgcolor);
     _view->MustBeResized();
 
-    // Initialize position, color and length of Triedron axes. The scale is a percent of the window width.
-    _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, 0.15, V3d_ZBUFFER);
+    // Initialize position, color and length of Triedron axes. The scale is in percent of the window width.
+    auto trihedronScale = this->devicePixelRatioF() * 0.1;
+    _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, trihedronScale, V3d_ZBUFFER);
 
-    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
+//    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
 
-        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
-        // specifies rendering mode
-        aParams.Method = Graphic3d_RM_RAYTRACING;
-        // maximum ray-tracing depth
-        aParams.RaytracingDepth = 3;
-        // enable shadows rendering
-        aParams.IsShadowEnabled = true;
-        // enable specular reflections
-        aParams.IsReflectionEnabled = true;
-        // enable adaptive anti-aliasing
-        aParams.IsAntialiasingEnabled = true;
-        // enable light propagation through transparent media
-        aParams.IsTransparentShadowEnabled = true;
-        // update the view
-        _view->Update();
-    }
+//        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
+//        // specifies rendering mode
+//        aParams.Method = Graphic3d_RM_RAYTRACING;
+//        // maximum ray-tracing depth
+//        aParams.RaytracingDepth = 3;
+//        // enable shadows rendering
+//        aParams.IsShadowEnabled = true;
+//        // enable specular reflections
+//        aParams.IsReflectionEnabled = true;
+//        // enable adaptive anti-aliasing
+//        aParams.IsAntialiasingEnabled = true;
+//        // enable light propagation through transparent media
+//        aParams.IsTransparentShadowEnabled = true;
+//        // update the view
+//        _view->Update();
+//    }
 
 }
 

@@ -27,7 +27,7 @@
 include(src/qmake-target-platform.pri)
 include(src/qmake-destination-path.pri)
 
-QT       += core gui svg openglwidgets
+QT       += core gui svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
