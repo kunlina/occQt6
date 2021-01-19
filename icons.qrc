@@ -9,5 +9,8 @@
         <file>lucideicons/rotate-ccw.svg</file>
         <file>lucideicons/triangle.svg</file>
         <file>lucideicons/zoom-in.svg</file>
+        <file>lucideicons/circle.svg</file>
+        <file>lucideicons/database.svg</file>
+        <file>lucideicons/globe.svg</file>
     </qresource>
 </RCC>
