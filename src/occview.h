@@ -49,6 +49,8 @@ public:
         return _context;
     }
 
+    Handle(Graphic3d_Structure) getStruct() {return _struct;}
+
 signals:
     void selectionChanged();
 
@@ -56,7 +58,7 @@ public slots:
     // operations for the view.
     void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void pan()    { _mouseMode = mouseActionMode::DynamicPanning;}
-    void select() { _mouseMode = mouseActionMode::Nothing;}
+    void select() { _mouseMode = mouseActionMode::Selecting;}
     void reset()  { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void rotate() { _mouseMode = mouseActionMode::DynamicRotation;}
     void zoom()   { _mouseMode = mouseActionMode::DynamicZooming;}
@@ -84,6 +86,8 @@ private:
     Handle(V3d_Viewer) _viewer;
     Handle(V3d_View) _view;
 
+    Handle(Graphic3d_Structure) _struct;
+
     // Occ context
     Handle(AIS_InteractiveContext) _context;
 
@@ -96,16 +100,16 @@ private:
     // mouse action modes
     enum mouseActionMode
     {
-        Nothing,
+        Selecting,
         DynamicZooming,
-        WindowZooming,
+    // UNUSED   WindowZooming,
         DynamicPanning,
-        GlobalPanning,
+    // UNUSED   GlobalPanning,
         DynamicRotation
     };
 
-    //mouse current mode.
-    mouseActionMode _mouseMode;
+    //mouse current action mode.
+    mouseActionMode _mouseMode {mouseActionMode::Selecting};
 
     // mouse position.
     Standard_Integer _mouseXmin;

@@ -148,6 +148,7 @@ LIBS += \
 # occ BRep libs
 LIBS += \
     -lTKBRep \
+    -lTKFillet \
     -lTKPrim \
     -lTKTopAlgo
 

@@ -32,6 +32,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QPainter>
+#include <QPaintDevice>
 #include <QPixmap>
 #include <QSvgRenderer>
 #include <QTextStream>
@@ -59,7 +60,7 @@ inline QPixmap hiresPixmap(const QString &filename, const QString &colorString, 
     }
 
     pixmap.setDevicePixelRatio(2.0);
-    pixmap = pixmap.scaledToHeight(2*height, Qt::SmoothTransformation);
+    pixmap = pixmap.scaledToHeight(4*height, Qt::SmoothTransformation);
 
     return pixmap;
 }

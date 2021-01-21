@@ -30,10 +30,12 @@
 
 occWindow::occWindow(QWidget *parent) : Aspect_Window(), _myWidget(parent)
 {
-    _xLeft = _myWidget->rect().left();
-    _yTop = _myWidget->rect().top();
-    _xRight = _myWidget->rect().right();
-    _yBottom = _myWidget->rect().bottom();
+    const auto devPx = _myWidget->devicePixelRatioF();
+
+    _xLeft = devPx * _myWidget->rect().left();
+    _yTop = devPx * _myWidget->rect().top();
+    _xRight = devPx * _myWidget->rect().right();
+    _yBottom = devPx * _myWidget->rect().bottom();
 }
 
 
@@ -83,12 +85,13 @@ Aspect_TypeOfResize occWindow::DoResize()
 {
     int aMask {0};
     auto aMode = Aspect_TOR_UNKNOWN;
+    const auto devPx = _myWidget->devicePixelRatioF();
 
     if (!_myWidget->isMinimized()) {
-        if ( Abs(_myWidget->rect().left()   - _xLeft   ) > 2 ) aMask |= 1;
-        if ( Abs(_myWidget->rect().right()  - _xRight  ) > 2 ) aMask |= 2;
-        if ( Abs(_myWidget->rect().top()    - _yTop    ) > 2 ) aMask |= 4;
-        if ( Abs(_myWidget->rect().bottom() - _yBottom ) > 2 ) aMask |= 8;
+        if ( Abs(devPx * _myWidget->rect().left()   - _xLeft   ) > 2 ) aMask |= 1;
+        if ( Abs(devPx * _myWidget->rect().right()  - _xRight  ) > 2 ) aMask |= 2;
+        if ( Abs(devPx * _myWidget->rect().top()    - _yTop    ) > 2 ) aMask |= 4;
+        if ( Abs(devPx * _myWidget->rect().bottom() - _yBottom ) > 2 ) aMask |= 8;
 
         switch ( aMask )
         {
@@ -123,10 +126,10 @@ Aspect_TypeOfResize occWindow::DoResize()
             break;
         }  // end switch
 
-        _xLeft  = static_cast<Standard_Integer>(_myWidget->rect().left());
-        _xRight = static_cast<Standard_Integer>(_myWidget->rect().right());
-        _yTop   = static_cast<Standard_Integer>(_myWidget->rect().top());
-        _yBottom = static_cast<Standard_Integer>(_myWidget->rect().bottom());
+        _xLeft  = static_cast<Standard_Integer>(devPx * _myWidget->rect().left());
+        _xRight = static_cast<Standard_Integer>(devPx * _myWidget->rect().right());
+        _yTop   = static_cast<Standard_Integer>(devPx * _myWidget->rect().top());
+        _yBottom = static_cast<Standard_Integer>(devPx * _myWidget->rect().bottom());
       } // end if
 
       return aMode;
@@ -140,8 +143,10 @@ Standard_Real occWindow::Ratio() const
 
 void occWindow::Size(Standard_Integer &theWidth, Standard_Integer &theHeight) const
 {
-    theWidth = _myWidget->devicePixelRatioF() * _myWidget->rect().right();
-    theHeight = _myWidget->devicePixelRatioF() * _myWidget->rect().bottom();
+    const auto devPx = _myWidget->devicePixelRatioF();
+
+    theWidth = devPx * _myWidget->rect().right();
+    theHeight = devPx * _myWidget->rect().bottom();
 }
 
 
@@ -150,10 +155,12 @@ void occWindow::Position(Standard_Integer &theX1,
                           Standard_Integer &theX2,
                           Standard_Integer &theY2) const
 {
-    theX1 = _myWidget->rect().left();
-    theX2 = _myWidget->rect().right();
-    theY1 = _myWidget->rect().top();
-    theY2 = _myWidget->rect().bottom();
+    auto devPx = _myWidget->devicePixelRatioF();
+
+    theX1 = devPx * _myWidget->rect().left();
+    theX2 = devPx * _myWidget->rect().right();
+    theY1 = devPx * _myWidget->rect().top();
+    theY2 = devPx * _myWidget->rect().bottom();
 }
 
 IMPLEMENT_STANDARD_RTTIEXT(occWindow, AspectWindow)

@@ -29,9 +29,14 @@
 #ifndef OCCTWIDGET_H
 #define OCCTWIDGET_H
 
+// Qt headers
 #include <QToolBar>
 #include <QWidget>
 
+// occ headers
+#include <AIS_ColoredShape.hxx>
+
+// project headers
 #include "occview.h"
 
 class occWidget : public QWidget
@@ -52,6 +57,15 @@ private:
 
     void addBox();
     void addCone();
+    void addSphere();
+    void addCylinder();
+    void addTorus();
+    void addText();
+
+    void makeFillet(void);
+    void makeChamfer(void);
+
+    void setShapeAttributes(AIS_Shape* shape, const Quantity_Color color);
 
 };
 #endif // OCCTWIDGET_H

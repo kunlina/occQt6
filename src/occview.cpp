@@ -154,7 +154,14 @@ void occView::wheelEvent( QWheelEvent* event )
 // ------------------------------------------------------------------------------------------------
 void occView::dragEvent(int x, int y)
 {
-    _context->Select(_mouseXmin, _mouseYmin, x, y, _view, Standard_True);
+    // correct coordinates for devicePixelRatio
+    auto devPx = this->devicePixelRatioF();
+    const Standard_Integer xMin = devPx * _mouseXmin;
+    const Standard_Integer yMin = devPx * _mouseYmin;
+    x *= devPx;
+    y *= devPx;
+
+    _context->Select(xMin, yMin, x, y, _view, Standard_True);
     emit selectionChanged();
 }
 
@@ -217,6 +224,12 @@ void occView::init()
     _viewer->SetDefaultLights();
     _viewer->SetLightOn();
 
+    // set up selection style
+    auto style = _context->SelectionStyle();
+    style->SetColor(Quantity_NOC_GREEN);
+    style->SetDisplayMode(AIS_Shaded);
+    _context->SetSelectionStyle(style);
+
     auto bgcolor = Quantity_Color(.12, .12, .12, Quantity_TOC_sRGB);
     _view->SetBackgroundColor(bgcolor);
     _view->MustBeResized();
@@ -225,24 +238,27 @@ void occView::init()
     auto trihedronScale = this->devicePixelRatioF() * 0.1;
     _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, trihedronScale, V3d_ZBUFFER);
 
-//    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
+    //    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
 
-//        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
-//        // specifies rendering mode
-//        aParams.Method = Graphic3d_RM_RAYTRACING;
-//        // maximum ray-tracing depth
-//        aParams.RaytracingDepth = 3;
-//        // enable shadows rendering
-//        aParams.IsShadowEnabled = true;
-//        // enable specular reflections
-//        aParams.IsReflectionEnabled = true;
-//        // enable adaptive anti-aliasing
-//        aParams.IsAntialiasingEnabled = true;
-//        // enable light propagation through transparent media
-//        aParams.IsTransparentShadowEnabled = true;
-//        // update the view
-//        _view->Update();
-//    }
+    //        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
+    //        // specifies rendering mode
+    //        aParams.Method = Graphic3d_RM_RAYTRACING;
+    //        // maximum ray-tracing depth
+    //        aParams.RaytracingDepth = 3;
+    //        // enable shadows rendering
+    //        aParams.IsShadowEnabled = true;
+    //        // enable specular reflections
+    //        aParams.IsReflectionEnabled = true;
+    //        // enable adaptive anti-aliasing
+    //        aParams.IsAntialiasingEnabled = true;
+    //        // enable light propagation through transparent media
+    //        aParams.IsTransparentShadowEnabled = true;
+    //        // update the view
+    //        _view->Update();
+    //    }
+
+    // Create a structure in this Viewer
+    _struct = new Graphic3d_Structure (_viewer->StructureManager());
 
 }
 
@@ -290,6 +306,8 @@ void occView::onLButtonUp(int flags, QPoint point)
         _rectBand = nullptr;
     }
 
+    if (_mouseMode == mouseActionMode::Selecting)
+        dragEvent(point.x(), point.y());
 
     // Ctrl for multi selection.
     //    if (point.x() == _mouseXmin && point.y() == _mouseYmin)
@@ -324,11 +342,11 @@ void occView::onRButtonUp(int flags, QPoint point)
 void occView::onMouseMove(QMouseEvent *event, QPoint point)
 {
     // Draw the rubber band when left button
-    if ((event->buttons() & Qt::LeftButton) && !(event->modifiers() & Qt::ShiftModifier))
-    {
-        drawRubberBand(_mouseXmin, _mouseYmin, point.x(), point.y());
-        dragEvent(point.x(), point.y());
-    }
+    //    if ((event->buttons() & Qt::LeftButton) && !(event->modifiers() & Qt::ShiftModifier))
+    //    {
+    //        drawRubberBand(_mouseXmin, _mouseYmin, point.x(), point.y());
+    //        dragEvent(point.x(), point.y());
+    //    }
 
     // Ctrl for multi selection.
     //    if (theFlags & Qt::ControlModifier)
@@ -340,8 +358,8 @@ void occView::onMouseMove(QMouseEvent *event, QPoint point)
     //        moveEvent(thePoint.x(), thePoint.y());
     //    }
 
-    // Middle button or left button and shift
-    if ((event->buttons() & Qt::MiddleButton) || ((event->buttons() & Qt::LeftButton) && (event->modifiers() & Qt::ShiftModifier)))
+    // Left button
+    if ((event->buttons() & Qt::LeftButton))
     {
         switch (_mouseMode)
         {
@@ -357,6 +375,10 @@ void occView::onMouseMove(QMouseEvent *event, QPoint point)
             _view->Pan(point.x() - _mouseXmax, _mouseYmax - point.y());
             _mouseXmax = point.x();
             _mouseYmax = point.y();
+            break;
+
+        case mouseActionMode::Selecting:
+            drawRubberBand(_mouseXmin, _mouseYmin, point.x(), point.y());
             break;
 
         default:

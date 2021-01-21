@@ -29,8 +29,10 @@
 #ifndef OCCTWINDOW_H
 #define OCCTWINDOW_H
 
+// Qt headers
 #include <QWidget>
 
+// occ headers
 #include <Aspect_Window.hxx>
 
 /*

@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>lucideicons/box.svg</file>
-        <file>lucideicons/help-circle.svg</file>
         <file>lucideicons/lucide_icons_license.txt</file>
         <file>lucideicons/mouse-pointer.svg</file>
         <file>lucideicons/move.svg</file>
@@ -9,8 +8,12 @@
         <file>lucideicons/rotate-ccw.svg</file>
         <file>lucideicons/triangle.svg</file>
         <file>lucideicons/zoom-in.svg</file>
-        <file>lucideicons/circle.svg</file>
         <file>lucideicons/database.svg</file>
         <file>lucideicons/globe.svg</file>
+        <file>lucideicons/type.svg</file>
+        <file>lucideicons/disc.svg</file>
+        <file>lucideicons/info.svg</file>
+        <file>lucideicons/fillet.svg</file>
+        <file>lucideicons/chamfer.svg</file>
     </qresource>
 </RCC>
