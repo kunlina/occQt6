@@ -15,5 +15,6 @@
         <file>lucideicons/info.svg</file>
         <file>lucideicons/fillet.svg</file>
         <file>lucideicons/chamfer.svg</file>
+        <file>lucideicons/extrude.svg</file>
     </qresource>
 </RCC>

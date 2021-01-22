@@ -37,6 +37,10 @@
 // occ headers
 #include <Standard_Version.hxx>
 
+#include <gp_Circ.hxx>
+#include <gp_Elips.hxx>
+#include <gp_Pln.hxx>
+
 #include <TopoDS.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
@@ -44,6 +48,10 @@
 #include <BRepLib.hxx>
 
 #include <BRepBuilderAPI.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepFilletAPI_MakeChamfer.hxx>
 #include <BRepFilletAPI_MakeFillet.hxx>
 #include <BRepPrimAPI_MakeBox.hxx>
@@ -81,7 +89,7 @@ occWidget::occWidget(QWidget *parent)
 
     // show and force size update to redraw occt window
     this->show();
-    this->setMinimumSize(QSize(640,480));
+    this->setMinimumSize(QSize(800,600));
 
     this->setWindowTitle("Qt6 with OpenCASCADE demo - occQt6");
 
@@ -214,6 +222,10 @@ void occWidget::populateToolBar()
     connect(chamferAction, &QAction::triggered, this, &occWidget::makeChamfer);
     _toolBar->addAction(chamferAction);
 
+    auto extrudeAction = new QAction("Extrude", this);
+    extrudeAction->setIcon(hiresPixmap(":/lucideicons/extrude.svg", iconColor, iconHeight));
+    connect(extrudeAction, &QAction::triggered, this, &occWidget::makeExtrude);
+    _toolBar->addAction(extrudeAction);
 
     // add about action
     auto about = new QAction("About", this);
@@ -233,24 +245,10 @@ void occWidget::populateToolBar()
 void occWidget::addBox()
 {
     auto topoBox = BRepPrimAPI_MakeBox(3.0, 4.0, 5.0).Shape();
+    auto aisBox = new AIS_Shape(topoBox);
+    setShapeAttributes(aisBox, Quantity_NOC_AZURE);
 
-    Handle(AIS_ColoredShape) aisBoxShaded = new AIS_ColoredShape(topoBox);
-    aisBoxShaded->SetColor(Quantity_NOC_AZURE);
-
-    auto attrib = aisBoxShaded->Attributes();
-    attrib->SetFaceBoundaryDraw(Standard_True);
-    auto line = attrib->FaceBoundaryAspect();
-    line->SetColor(Quantity_NOC_BLACK);
-    line->SetWidth(2.0);
-    attrib->SetFaceBoundaryAspect(line);
-    aisBoxShaded->SetAttributes(attrib);
-
-    _occView->getContext()->Display(aisBoxShaded, AIS_Shaded, 0, Standard_True);
-
-//    Handle(AIS_ColoredShape) aisBoxWireframe = new AIS_ColoredShape(topoBox);
-//    aisBoxWireframe->SetColor(Quantity_NOC_BLACK);
-//    _occView->getContext()->Display(aisBoxWireframe, AIS_WireFrame, -1, Standard_True); // -1 -> cannot be selected
-
+    _occView->getContext()->Display(aisBox, Standard_True);
     _occView->fitAll();
 }
 
@@ -261,28 +259,17 @@ void occWidget::addCone()
     axis.SetLocation(gp_Pnt(0.0, 10.0, 0.0));
 
     auto topoReducer = BRepPrimAPI_MakeCone(axis, 3.0, 1.5, 5.0).Shape();
-
-    Handle(AIS_Shape) aisReducerShaded = new AIS_Shape(topoReducer);
-    aisReducerShaded->SetColor(Quantity_NOC_BISQUE);
-    _occView->getContext()->Display(aisReducerShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) aisReducerWireframe = new AIS_Shape(topoReducer);
-    aisReducerWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(aisReducerWireframe, AIS_WireFrame, -1, Standard_True);
-
+    auto aisReducer = new AIS_Shape(topoReducer);
+    setShapeAttributes(aisReducer, Quantity_NOC_BISQUE);
 
     axis.SetLocation(gp_Pnt(8.0, 10.0, 0.0));
 
     auto topoCone = BRepPrimAPI_MakeCone(axis, 3.0, 0.0, 5.0).Shape();
+    auto aisCone = new AIS_Shape(topoCone);
+    setShapeAttributes(aisCone, Quantity_NOC_CHOCOLATE);
 
-    Handle(AIS_Shape) aisConeShaded = new AIS_Shape(topoCone);
-    aisConeShaded->SetColor(Quantity_NOC_CHOCOLATE);
-    _occView->getContext()->Display(aisConeShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) aisConeWireframe = new AIS_Shape(topoCone);
-    aisConeWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(aisConeWireframe, AIS_WireFrame, -1, Standard_True);
-
+    _occView->getContext()->Display(aisReducer, Standard_True);
+    _occView->getContext()->Display(aisCone, Standard_True);
     _occView->fitAll();
 }
 
@@ -293,15 +280,10 @@ void occWidget::addSphere()
     axis.SetLocation(gp_Pnt(0.0, 20.0, 3.0));
 
     auto topoSphere = BRepPrimAPI_MakeSphere(axis, 3.0).Shape();
+    auto aisSphere = new AIS_Shape(topoSphere);
+    setShapeAttributes(aisSphere, Quantity_NOC_BLUE1);
 
-    Handle(AIS_Shape) aisSphereShaded = new AIS_Shape(topoSphere);
-    aisSphereShaded->SetColor(Quantity_NOC_BLUE1);
-    _occView->getContext()->Display(aisSphereShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) aisSphereWireframe = new AIS_Shape(topoSphere);
-    aisSphereWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(aisSphereWireframe, AIS_WireFrame, -1, Standard_True);
-
+    _occView->getContext()->Display(aisSphere, Standard_True);
     _occView->fitAll();
 }
 
@@ -312,26 +294,17 @@ void occWidget::addCylinder()
     axis.SetLocation(gp_Pnt(0.0, 30.0, 0.0));
 
     auto topoCylinder = BRepPrimAPI_MakeCylinder(axis, 3.0, 5.0).Shape();
-
-    Handle(AIS_Shape) aisCylinderShaded = new AIS_Shape(topoCylinder);
-    aisCylinderShaded->SetColor(Quantity_NOC_RED);
-    _occView->getContext()->Display(aisCylinderShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) aisCylinderWireframe = new AIS_Shape(topoCylinder);
-    aisCylinderWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(aisCylinderWireframe, AIS_WireFrame, -1, Standard_True);
+    auto aisCylinder = new AIS_Shape(topoCylinder);
+    setShapeAttributes(aisCylinder, Quantity_NOC_RED);
 
     axis.SetLocation(gp_Pnt(8.0, 30.0, 0.0));
+
     auto topoPie = BRepPrimAPI_MakeCylinder(axis, 3.0, 5.0, M_PI_2 * 3.0).Shape();
+    auto aisPie = new AIS_Shape(topoPie);
+    setShapeAttributes(aisPie, Quantity_NOC_TAN);
 
-    Handle(AIS_Shape) aisPieShaded = new AIS_Shape(topoPie);
-    aisPieShaded->SetColor(Quantity_NOC_TAN);
-    _occView->getContext()->Display(aisPieShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) aisPieWireframe = new AIS_Shape(topoPie);
-    aisPieWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(aisPieWireframe, AIS_WireFrame, -1, Standard_True);
-
+    _occView->getContext()->Display(aisCylinder, Standard_True);
+    _occView->getContext()->Display(aisPie, Standard_True);
     _occView->fitAll();
 }
 
@@ -342,25 +315,17 @@ void occWidget::addTorus()
     axis.SetLocation(gp_Pnt(0.0, 40.0, 0.0));
 
     auto topoTorus = BRepPrimAPI_MakeTorus(axis, 3.0, 1.0).Shape();
-
-    Handle(AIS_Shape) aisTorusShaded = new AIS_Shape(topoTorus);
-    aisTorusShaded->SetColor(Quantity_NOC_YELLOW);
-    _occView->getContext()->Display(aisTorusShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) aisTorusWireframe = new AIS_Shape(topoTorus);
-    aisTorusWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(aisTorusWireframe, AIS_WireFrame, 0, Standard_True);
+    auto aisTorus = new AIS_Shape(topoTorus);
+    setShapeAttributes(aisTorus, Quantity_NOC_YELLOW);
 
     axis.SetLocation(gp_Pnt(8.0, 40.0, 0.0));
+
     auto topoElbow = BRepPrimAPI_MakeTorus(axis, 3.0, 1.0, M_PI_2).Shape();
+    auto aisElbow = new AIS_Shape(topoElbow);
+    setShapeAttributes(aisElbow, Quantity_NOC_THISTLE);
 
-    Handle(AIS_Shape) anAisElbowShaded = new AIS_Shape(topoElbow);
-    anAisElbowShaded->SetColor(Quantity_NOC_THISTLE);
-    _occView->getContext()->Display(anAisElbowShaded, AIS_Shaded, 0, Standard_True);
-
-    Handle(AIS_Shape) anAisElbowWireframe = new AIS_Shape(topoElbow);
-    anAisElbowWireframe->SetColor(Quantity_NOC_BLACK);
-    _occView->getContext()->Display(anAisElbowWireframe, AIS_WireFrame, 0, Standard_True);
+    _occView->getContext()->Display(aisTorus, Standard_True);
+    _occView->getContext()->Display(aisElbow, Standard_True);
 
     _occView->fitAll();
 }
@@ -404,33 +369,90 @@ void occWidget::makeFillet()
     for (TopExp_Explorer ex(topoBox, TopAbs_EDGE); ex.More(); ex.Next())
         MF.Add(1.0, TopoDS::Edge(ex.Current()));
 
-    auto aisShapeShaded = new AIS_Shape(MF.Shape());
-    this->setShapeAttributes(aisShapeShaded, Quantity_NOC_VIOLET);
+    auto aisShape = new AIS_Shape(MF.Shape());
+    this->setShapeAttributes(aisShape, Quantity_NOC_VIOLET);
 
-    _occView->getContext()->Display(aisShapeShaded, AIS_Shaded, 0, Standard_True);
-
- _occView->fitAll();
+    _occView->getContext()->Display(aisShape, Standard_True);
+    _occView->fitAll();
 }
 
 
 void occWidget::makeChamfer()
 {
+    gp_Ax2 axis;
+    axis.SetLocation(gp_Pnt(8.0, 50.0, 0.0));
 
+    auto topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    BRepFilletAPI_MakeChamfer MC(topoBox);
+    TopTools_IndexedDataMapOfShapeListOfShape aEdgeFaceMap;
+
+    TopExp::MapShapesAndAncestors(topoBox, TopAbs_EDGE, TopAbs_FACE, aEdgeFaceMap);
+
+    for (Standard_Integer i = 1; i <= aEdgeFaceMap.Extent(); ++i)
+    {
+        TopoDS_Edge anEdge = TopoDS::Edge(aEdgeFaceMap.FindKey(i));
+        TopoDS_Face aFace = TopoDS::Face(aEdgeFaceMap.FindFromIndex(i).First());
+        MC.Add(0.6, 0.6, anEdge, aFace);
+    }
+
+    auto aisShape = new AIS_Shape(MC.Shape());
+    setShapeAttributes(aisShape, Quantity_NOC_TOMATO);
+
+    _occView->getContext()->Display(aisShape, Standard_True);
+    _occView->fitAll();
+}
+
+
+void occWidget::makeExtrude()
+{
+    // prism a vertex result is an edge.
+    auto vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(0.0, 60.0, 0.0));
+    auto prismVertex = BRepPrimAPI_MakePrism(vertex, gp_Vec(0.0, 0.0, 5.0));
+    auto aisPrismVertex = new AIS_Shape(prismVertex);
+
+    // prism an edge result is a face.
+    auto edge = BRepBuilderAPI_MakeEdge(gp_Pnt(5.0, 60.0, 0.0), gp_Pnt(10.0, 60.0, 0.0));
+    auto prismEdge = BRepPrimAPI_MakePrism(edge, gp_Vec(0.0, 0.0, 5.0));
+    auto aisPrismEdge = new AIS_Shape(prismEdge);
+
+    // prism a wire result is a shell.
+    gp_Ax2 axis;
+    axis.SetLocation(gp_Pnt(16.0, 60.0, 0.0));
+
+    auto circleEdge = BRepBuilderAPI_MakeEdge(gp_Circ(axis, 3.0));
+    auto circleWire = BRepBuilderAPI_MakeWire(circleEdge);
+    auto prismCircle = BRepPrimAPI_MakePrism(circleWire, gp_Vec(0.0, 0.0, 5.0));
+    auto aisPrismCircle = new AIS_Shape(prismCircle);
+
+    // prism a face or a shell result is a solid.
+    axis.SetLocation(gp_Pnt(24.0, 60.0, 0.0));
+    auto ellipseEdge = BRepBuilderAPI_MakeEdge(gp_Elips(axis, 3.0, 2.0));
+    auto ellipseWire = BRepBuilderAPI_MakeWire(ellipseEdge);
+    auto ellipseFace = BRepBuilderAPI_MakeFace(gp_Pln(gp::XOY()), ellipseWire);
+    auto prismEllipse = BRepPrimAPI_MakePrism(ellipseFace, gp_Vec(0.0, 0.0, 5.0));
+    auto aisPrismEllipse = new AIS_Shape(prismEllipse);
+
+    setShapeAttributes(aisPrismVertex, Quantity_NOC_PAPAYAWHIP);
+    setShapeAttributes(aisPrismEdge, Quantity_NOC_PEACHPUFF);
+    setShapeAttributes(aisPrismCircle, Quantity_NOC_PERU);
+    setShapeAttributes(aisPrismEllipse, Quantity_NOC_PINK);
+
+    _occView->getContext()->Display(aisPrismVertex, Standard_True);
+    _occView->getContext()->Display(aisPrismEdge, Standard_True);
+    _occView->getContext()->Display(aisPrismCircle, Standard_True);
+    _occView->getContext()->Display(aisPrismEllipse, Standard_True);
+    _occView->fitAll();
 }
 
 
 void occWidget::setShapeAttributes(AIS_Shape *shape, const Quantity_Color color)
 {
     shape->SetColor(color);
-
     auto attrib = shape->Attributes();
-    attrib->SetFaceBoundaryDraw(Standard_True);
-
     auto line = attrib->FaceBoundaryAspect();
     line->SetColor(Quantity_NOC_BLACK);
-    line->SetWidth(devicePixelRatio());
-
+    line->SetWidth(2.0);
+    attrib->SetFaceBoundaryDraw(Standard_True);
     attrib->SetFaceBoundaryAspect(line);
-
     shape->SetAttributes(attrib);
 }

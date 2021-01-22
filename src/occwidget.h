@@ -62,8 +62,28 @@ private:
     void addTorus();
     void addText();
 
-    void makeFillet(void);
-    void makeChamfer(void);
+    void makeFillet();
+    void makeChamfer();
+    void makeExtrude();
+
+//    //! test revol algorithm.
+//    void makeRevol(void);
+
+//    //! test loft algorithm.
+//    void makeLoft(void);
+
+//    //! test boolean operation cut.
+//    void testCut(void);
+
+//    //! test boolean operation fuse.
+//    void testFuse(void);
+
+//    //! test boolean operation common.
+//    void testCommon(void);
+
+//    //! test helix shapes.
+//    void testHelix(void);
+
 
     void setShapeAttributes(AIS_Shape* shape, const Quantity_Color color);
 

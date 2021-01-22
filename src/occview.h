@@ -44,12 +44,8 @@ public:
     // constructor
     explicit occView(QWidget *parent = nullptr);
 
-    const Handle(AIS_InteractiveContext)& getContext() const
-    {
-        return _context;
-    }
-
-    Handle(Graphic3d_Structure) getStruct() {return _struct;}
+    const Handle(AIS_InteractiveContext)& getContext() const { return _context;}
+    const Handle(Graphic3d_Structure)& getStruct() const {return _struct;}
 
 signals:
     void selectionChanged();
