@@ -1,13 +1,15 @@
 # Overview
 * forked from [eryar/occQt](https://github.com/eryar/occQt), combined with [Felipeasg/basicOccWidget](https://github.com/Felipeasg/basicOccWidget) and updated to work with Qt6. 
-* Also uses more modern icons in svg file format from [Lucide](https://github.com/lucide-icons/lucide)
+* Also uses more modern icons in svg file format from [Lucide](https://github.com/lucide-icons/lucide) plus a few custom ones
 
 
-# ToDo
-* [wip] Demonstrate the operations for the OpenCASCADE viewer, such as pan, zoom and rotate
-* [wip] Manipulate the view without needing a middle mouse button to be touchpad and MacOS mouse friendly
-* Demonstrate the primitive shape construction algorithms usage, such as box, cone, sphere, cylinder and torus creation;
-* Demonstrate some modeling algorithms, such as prism, revol, loft and fillet, chamfer;
+# Features
+* Demonstrate operations for the OpenCASCADE viewer, such as select, pan, zoom and rotate
+* Manipulate the viewer without needing a middle mouse button to be touchpad and MacOS mouse friendly
+* Demonstrate primitive shape construction algorithms usage, such as box, cone, sphere, cylinder and torus creation
+
+# Todo
+* [wip} emonstrate some modeling algorithms, such as prism, revol, loft and fillet, chamfer;
 * Demonstrate boolean operations, such as cut, fuse and common;
 * Demonstrate the helix algorithms;
 
