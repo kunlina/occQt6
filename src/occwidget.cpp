@@ -47,13 +47,21 @@
 
 #include <BRepLib.hxx>
 
+#include <BRepAlgoAPI_Cut.hxx>
+
 #include <BRepBuilderAPI.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakePolygon.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
+#include <BRepBuilderAPI_Transform.hxx>
+
 #include <BRepFilletAPI_MakeChamfer.hxx>
 #include <BRepFilletAPI_MakeFillet.hxx>
+
+#include <BRepOffsetAPI_ThruSections.hxx>
+
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeSphere.hxx>
@@ -127,7 +135,7 @@ void occWidget::populateToolBar()
 {
 
     auto iconSize = _toolBar->iconSize();
-    _toolBar->setIconSize(QSize(iconSize.width()*0.65, iconSize.height()*0.65));
+    _toolBar->setIconSize(QSize(iconSize.width()*0.75, iconSize.height()*0.75));
     _toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
     const int iconHeight = _toolBar->iconSize().height();
@@ -139,7 +147,7 @@ void occWidget::populateToolBar()
     auto selectAction = new QAction("Select", this);
     selectAction->setCheckable(true);
     selectAction->setIcon(hiresPixmap(":/lucideicons/mouse-pointer.svg", iconColor, iconHeight));
-    connect(selectAction, &QAction::triggered, _occView, &occView::select);
+    //connect(selectAction, &QAction::triggered, _occView, &occView::select);
     mouseGroup->addAction(selectAction);
 
     auto zoomAction = new QAction("Zoom", this);
@@ -157,7 +165,7 @@ void occWidget::populateToolBar()
     auto rotate= new QAction("Rotate", this);
     rotate->setCheckable(true);
     rotate->setIcon(hiresPixmap(":/lucideicons/rotate-ccw.svg", iconColor, iconHeight));
-    connect(rotate, &QAction::triggered, _occView, &occView::rotate);
+    connect(rotate, &QAction::triggered, _occView, &occView::rotation);
     mouseGroup->addAction(rotate);
 
     // select first action
@@ -226,6 +234,23 @@ void occWidget::populateToolBar()
     extrudeAction->setIcon(hiresPixmap(":/lucideicons/extrude.svg", iconColor, iconHeight));
     connect(extrudeAction, &QAction::triggered, this, &occWidget::makeExtrude);
     _toolBar->addAction(extrudeAction);
+
+    auto revolAction = new QAction("Revolve", this);
+    revolAction->setIcon(hiresPixmap(":/lucideicons/revol.svg", iconColor, iconHeight));
+    connect(revolAction, &QAction::triggered, this, &occWidget::makeRevol);
+    _toolBar->addAction(revolAction);
+
+    auto loftAction = new QAction("Loft", this);
+    loftAction->setIcon(hiresPixmap(":/lucideicons/loft.svg", iconColor, iconHeight));
+    connect(loftAction, &QAction::triggered, this, &occWidget::makeLoft);
+    _toolBar->addAction(loftAction);
+
+    _toolBar->addSeparator();
+
+    auto boolCutAction = new QAction("Bool Cut", this);
+    boolCutAction->setIcon(hiresPixmap(":/lucideicons/boolCut.svg", iconColor, iconHeight));
+    connect(boolCutAction, &QAction::triggered, this, &occWidget::boolCut);
+    _toolBar->addAction(boolCutAction);
 
     // add about action
     auto about = new QAction("About", this);
@@ -445,6 +470,133 @@ void occWidget::makeExtrude()
 }
 
 
+void occWidget::makeRevol()
+{
+    gp_Ax1 axis;
+
+    // revol a vertex, result is an edge.
+    axis.SetLocation(gp_Pnt(0.0, 70.0, 0.0));
+    auto vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(2.0, 70.0, 0.0));
+    auto revolVertex = BRepPrimAPI_MakeRevol(vertex, axis);
+    auto aisRevolVertex = new AIS_Shape(revolVertex);
+
+    // revol an edge, result is a face.
+    axis.SetLocation(gp_Pnt(8.0, 70.0, 0.0));
+    auto edge = BRepBuilderAPI_MakeEdge(gp_Pnt(6.0, 70.0, 0.0), gp_Pnt(6.0, 70.0, 5.0));
+    auto revolEdge = BRepPrimAPI_MakeRevol(edge, axis);
+    auto aisRevolEdge = new AIS_Shape(revolEdge);
+
+    // revol a wire, result is a shell.
+    axis.SetLocation(gp_Pnt(20.0, 70.0, 0.0));
+    axis.SetDirection(gp::DY());
+
+    auto circleEdge = BRepBuilderAPI_MakeEdge(gp_Circ(gp_Ax2(gp_Pnt(15.0, 70.0, 0.0), gp::DZ()), 1.5));
+    auto circleWire = BRepBuilderAPI_MakeWire(circleEdge);
+    auto revolCircle = BRepPrimAPI_MakeRevol(circleWire, axis, M_PI_2);
+    auto aisRevolCircle = new AIS_Shape(revolCircle);
+
+    // revol a face, result is a solid.
+    axis.SetLocation(gp_Pnt(30.0, 70.0, 0.0));
+    axis.SetDirection(gp::DY());
+
+    auto ellipseEdge = BRepBuilderAPI_MakeEdge(gp_Elips(gp_Ax2(gp_Pnt(25.0, 70.0, 0.0), gp::DZ()), 3.0, 2.0));
+    auto ellipseWire = BRepBuilderAPI_MakeWire(ellipseEdge);
+    auto ellipseFace = BRepBuilderAPI_MakeFace(gp_Pln(gp::XOY()), ellipseWire);
+    auto revolEllipse = BRepPrimAPI_MakeRevol(ellipseFace, axis, M_PI_4);
+    auto aisRevolEllipse = new AIS_Shape(revolEllipse);
+
+    setShapeAttributes(aisRevolVertex, Quantity_NOC_LIMEGREEN);
+    setShapeAttributes(aisRevolEdge, Quantity_NOC_LINEN);
+    setShapeAttributes(aisRevolCircle, Quantity_NOC_MAGENTA1);
+    setShapeAttributes(aisRevolEllipse, Quantity_NOC_MAROON);
+
+    _occView->getContext()->Display(aisRevolVertex, Standard_True);
+    _occView->getContext()->Display(aisRevolEdge, Standard_True);
+    _occView->getContext()->Display(aisRevolCircle, Standard_True);
+    _occView->getContext()->Display(aisRevolEllipse, Standard_True);
+    _occView->fitAll();
+}
+
+
+void occWidget::makeLoft()
+{
+    // bottom wire.
+    auto circleEdge = BRepBuilderAPI_MakeEdge(
+                gp_Circ(
+                    gp_Ax2(gp_Pnt(0.0, 80.0, 0.0), gp::DZ()),
+                    1.5)
+                );
+    auto circleWire = BRepBuilderAPI_MakeWire(circleEdge);
+
+    // top wire.
+    BRepBuilderAPI_MakePolygon polygon;
+    polygon.Add(gp_Pnt(-3.0, 77.0, 6.0));
+    polygon.Add(gp_Pnt(3.0, 77.0, 6.0));
+    polygon.Add(gp_Pnt(3.0, 83.0, 6.0));
+    polygon.Add(gp_Pnt(-3.0, 83.0, 6.0));
+    polygon.Close();
+
+    BRepOffsetAPI_ThruSections shellGenerator;
+    BRepOffsetAPI_ThruSections solidGenerator(true);
+
+    shellGenerator.AddWire(circleWire);
+    shellGenerator.AddWire(polygon.Wire());
+
+    solidGenerator.AddWire(circleWire);
+    solidGenerator.AddWire(polygon.Wire());
+
+    // translate the solid.
+    gp_Trsf aTrsf;
+    aTrsf.SetTranslation(gp_Vec(18.0, 0.0, 0.0));
+    BRepBuilderAPI_Transform transform(solidGenerator.Shape(), aTrsf);
+
+    auto aisShell = new AIS_Shape(shellGenerator.Shape());
+    auto aisSolid = new AIS_Shape(transform.Shape());
+
+    setShapeAttributes(aisShell, Quantity_NOC_OLIVEDRAB);
+    setShapeAttributes(aisSolid, Quantity_NOC_PEACHPUFF);
+
+    _occView->getContext()->Display(aisShell, Standard_True);
+    _occView->getContext()->Display(aisSolid, Standard_True);
+    _occView->fitAll();
+}
+
+
+void occWidget::boolCut()
+{
+    gp_Ax2 axis;
+    axis.SetLocation(gp_Pnt(0.0, 90.0, 0.0));
+
+    auto topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    auto topoSphere = BRepPrimAPI_MakeSphere(axis, 2.5).Shape();
+    auto cutShape1 = BRepAlgoAPI_Cut(topoBox, topoSphere);
+    auto cutShape2 = BRepAlgoAPI_Cut(topoSphere, topoBox);
+
+    gp_Trsf aTrsf;
+    aTrsf.SetTranslation(gp_Vec(8.0, 0.0, 0.0));
+    BRepBuilderAPI_Transform transform1(cutShape1, aTrsf);
+
+    aTrsf.SetTranslation(gp_Vec(16.0, 0.0, 0.0));
+    BRepBuilderAPI_Transform transform2(cutShape2, aTrsf);
+
+    auto aisBox = new AIS_Shape(topoBox);
+    auto aisSphere = new AIS_Shape(topoSphere);
+    auto aisCutShape1 = new AIS_Shape(transform1.Shape());
+    auto aisCutShape2 = new AIS_Shape(transform2.Shape());
+
+    setShapeAttributes(aisBox, Quantity_NOC_SPRINGGREEN);
+    setShapeAttributes(aisSphere, Quantity_NOC_STEELBLUE);
+    setShapeAttributes(aisCutShape1, Quantity_NOC_TAN);
+    setShapeAttributes(aisCutShape2, Quantity_NOC_SALMON);
+
+    _occView->getContext()->Display(aisBox, Standard_True);
+    _occView->getContext()->Display(aisSphere, Standard_True);
+    _occView->getContext()->Display(aisCutShape1, Standard_True);
+    _occView->getContext()->Display(aisCutShape2, Standard_True);
+    _occView->fitAll();
+}
+
+
 void occWidget::setShapeAttributes(AIS_Shape *shape, const Quantity_Color color)
 {
     shape->SetColor(color);
@@ -456,3 +608,4 @@ void occWidget::setShapeAttributes(AIS_Shape *shape, const Quantity_Color color)
     attrib->SetFaceBoundaryAspect(line);
     shape->SetAttributes(attrib);
 }
+

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   stroke="currentColor"
+   stroke-width="2"
+   stroke-linecap="round"
+   stroke-linejoin="round"
+   version="1.1"
+   id="svg26"
+   sodipodi:docname="revol.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
+  <metadata
+     id="metadata32">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs30" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1618"
+     inkscape:window-height="1122"
+     id="namedview28"
+     showgrid="false"
+     inkscape:zoom="30.625"
+     inkscape:cx="7.8089933"
+     inkscape:cy="11.31672"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg26"
+     showguides="false" />
+  <circle
+     id="circle22"
+     r="10"
+     cy="12"
+     cx="12" />
+  <path
+     id="circle24"
+     sodipodi:type="arc"
+     sodipodi:cx="12.002703"
+     sodipodi:cy="11.980894"
+     sodipodi:rx="4.6515217"
+     sodipodi:ry="4.6515217"
+     sodipodi:start="4.6406937"
+     sodipodi:end="3.1478366"
+     sodipodi:arc-type="arc"
+     d="M 11.669496,7.3413222 A 4.6515217,4.6515217 0 0 1 16.201397,9.9789897 4.6515217,4.6515217 0 0 1 15.397684,15.160636 4.6515217,4.6515217 0 0 1 10.279699,16.301532 4.6515217,4.6515217 0 0 1 7.3512717,11.95185"
+     style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+     sodipodi:open="true" />
+  <polyline
+     points="5 12 12 5 19 12"
+     id="polyline98"
+     transform="matrix(0,-0.33889662,0.33889662,0,7.601022,11.381025)"
+     style="stroke-width:5.90150471;stroke-miterlimit:4;stroke-dasharray:none" />
+</svg>

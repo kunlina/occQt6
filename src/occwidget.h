@@ -65,15 +65,11 @@ private:
     void makeFillet();
     void makeChamfer();
     void makeExtrude();
+    void makeRevol();
+    void makeLoft();
 
-//    //! test revol algorithm.
-//    void makeRevol(void);
-
-//    //! test loft algorithm.
-//    void makeLoft(void);
-
-//    //! test boolean operation cut.
-//    void testCut(void);
+    // test boolean operation cut.
+    void boolCut();
 
 //    //! test boolean operation fuse.
 //    void testFuse(void);

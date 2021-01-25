@@ -133,24 +133,32 @@ LIBS += -L$${CAS_LIB_DIR}
 ##    -lTKFillet  \
 #    -lTKXSDRAW
 
-# occ foundation libs
+# occ module foundation libs
 LIBS += \
     -lTKernel   \
     -lTKMath    \
 
-# occ visualization libs
+# occ module visualization libs
 LIBS += \
     -lTKOpenGl  \
     -lTKService \
     -lTKV3d \
     -lTKXSDRAW
 
-# occ BRep libs
+# occ module modeling libs
 LIBS += \
+    -lTKBO \
     -lTKBRep \
     -lTKFillet \
+    -lTKG3d \
+    -lTKGeomAlgo \
+    -lTKGeomBase \
+    -lTKOffset  \
     -lTKPrim \
+    -lTKShHealing \
     -lTKTopAlgo
+
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
