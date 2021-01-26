@@ -1,23 +1,27 @@
 <RCC>
     <qresource prefix="/">
-        <file>lucideicons/box.svg</file>
-        <file>lucideicons/lucide_icons_license.txt</file>
-        <file>lucideicons/mouse-pointer.svg</file>
-        <file>lucideicons/move.svg</file>
-        <file>lucideicons/reset.svg</file>
-        <file>lucideicons/rotate-ccw.svg</file>
-        <file>lucideicons/triangle.svg</file>
-        <file>lucideicons/zoom-in.svg</file>
-        <file>lucideicons/database.svg</file>
-        <file>lucideicons/globe.svg</file>
-        <file>lucideicons/type.svg</file>
-        <file>lucideicons/disc.svg</file>
-        <file>lucideicons/info.svg</file>
-        <file>lucideicons/fillet.svg</file>
-        <file>lucideicons/chamfer.svg</file>
-        <file>lucideicons/extrude.svg</file>
-        <file>lucideicons/revol.svg</file>
-        <file>lucideicons/loft.svg</file>
-        <file>lucideicons/boolCut.svg</file>
+        <file>icons/boolCut.svg</file>
+        <file>icons/chamfer.svg</file>
+        <file>icons/extrude.svg</file>
+        <file>icons/fillet.svg</file>
+        <file>icons/loft.svg</file>
+        <file>icons/orbit.svg</file>
+        <file>icons/revol.svg</file>
+        <file>icons/lucide/arrow-up.svg</file>
+        <file>icons/lucide/box-select.svg</file>
+        <file>icons/lucide/box.svg</file>
+        <file>icons/lucide/database.svg</file>
+        <file>icons/lucide/disc.svg</file>
+        <file>icons/lucide/globe.svg</file>
+        <file>icons/lucide/info.svg</file>
+        <file>icons/lucide/lucide_icons_license.txt</file>
+        <file>icons/lucide/mouse-pointer.svg</file>
+        <file>icons/lucide/move.svg</file>
+        <file>icons/lucide/reset.svg</file>
+        <file>icons/lucide/rotate-ccw.svg</file>
+        <file>icons/lucide/save.svg</file>
+        <file>icons/lucide/triangle.svg</file>
+        <file>icons/lucide/type.svg</file>
+        <file>icons/lucide/zoom-in.svg</file>
     </qresource>
 </RCC>

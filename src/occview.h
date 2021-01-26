@@ -33,7 +33,8 @@ class occView : public QWidget, protected AIS_ViewController
                        curAction3d_WindowZooming,
                        curAction3d_DynamicPanning,
                        curAction3d_GlobalPanning,
-                       curAction3d_DynamicRotation
+                       curAction3d_DynamicRotation,
+                       curAction3d_Selecting
                      };
 
 public:
@@ -120,6 +121,8 @@ public slots:
     //    void reset()  { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     //    void rotate() { _mouseMode = mouseActionMode::DynamicRotation;}
     //    void zoom()   { _mouseMode = mouseActionMode::DynamicZooming;}
+    void orbit() {setCurAction(curAction3d_Nothing);}
+    void select() {setCurAction(curAction3d_Selecting);}
     void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void fitArea() {setCurAction(curAction3d_WindowZooming);};
     void zoom() {setCurAction(curAction3d_DynamicZooming);};

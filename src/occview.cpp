@@ -18,6 +18,7 @@
 #include <QApplication>
 #include <QColorDialog>
 #include <QCursor>
+#include <QDebug>
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QDebug>
@@ -168,7 +169,7 @@ void occView::init()
 
     _view->MustBeResized();
 
-    // Create a structure in this Viewer
+    // Create a graphic structure in this Viewer
     _struct = new Graphic3d_Structure (_viewer->StructureManager());
 
     // Set up lights etc
@@ -185,7 +186,7 @@ void occView::init()
     _view->SetBackgroundColor(bgcolor);
     _view->MustBeResized();
 
-    // Initialize position, color and length of Triedron axes. The scale is in percent of the window width.
+    // Initialize position, color and length of Trihedron axes. The scale is in percent of the window width.
     auto trihedronScale = this->devicePixelRatioF() * 0.1;
     _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, trihedronScale, V3d_ZBUFFER);
 
@@ -594,7 +595,8 @@ void occView::activateCursor(const curAction3d mode)
 
 void occView::mousePressEvent(QMouseEvent* event)
 {
-    const Graphic3d_Vec2i point {event->pos().x(), event->pos().y()};
+    Graphic3d_Vec2i point {event->pos().x(), event->pos().y()};
+    point *= devicePixelRatioF();
     const Aspect_VKeyFlags flags = qtMouseModifiers2VKeys (event->modifiers());
     if (!_view.IsNull() && UpdateMouseButtons(point, qtMouseButtons2VKeys (event->buttons()), flags, false))
         updateView();
@@ -605,7 +607,8 @@ void occView::mousePressEvent(QMouseEvent* event)
 
 void occView::mouseReleaseEvent(QMouseEvent* event)
 {
-    const Graphic3d_Vec2i point {event->pos().x(), event->pos().y()};
+    Graphic3d_Vec2i point {event->pos().x(), event->pos().y()};
+    point *= devicePixelRatioF();
     const Aspect_VKeyFlags flags = qtMouseModifiers2VKeys(event->modifiers());
     if (!_view.IsNull() && UpdateMouseButtons(point, qtMouseButtons2VKeys(event->buttons()), flags, false))
         updateView();
@@ -614,8 +617,8 @@ void occView::mouseReleaseEvent(QMouseEvent* event)
     if (_curMode == curAction3d_GlobalPanning)
         _view->Place(point.x(), point.y(), _curZoom);
 
-    if (_curMode != curAction3d_Nothing)
-        setCurAction(curAction3d_Nothing);
+    //if (_curMode != curAction3d_Nothing)
+    //    setCurAction(curAction3d_Nothing);
 
     if (event->button() == Qt::RightButton && (flags & Aspect_VKeyFlags_CTRL) == 0 && (_clickPos - point).cwiseAbs().maxComp() <= 4)
         popup(point.x(), point.y());
@@ -623,7 +626,8 @@ void occView::mouseReleaseEvent(QMouseEvent* event)
 
 void occView::mouseMoveEvent(QMouseEvent* event)
 {
-    const Graphic3d_Vec2i newPos {event->pos().x(), event->pos().y()};
+    Graphic3d_Vec2i newPos {event->pos().x(), event->pos().y()};
+    newPos *= devicePixelRatioF();
     if (!_view.IsNull() && UpdateMousePosition(newPos, qtMouseButtons2VKeys(event->buttons()), qtMouseModifiers2VKeys(event->modifiers()), false))
         updateView();
 }
@@ -676,6 +680,9 @@ void occView::defineMouseGestures()
     case curAction3d_DynamicRotation:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, aRot);
         break;
+    case curAction3d_Selecting:
+        myMouseGestureMap.Bind(Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_SelectRectangle);
+        break;
     }
 }
 
@@ -684,7 +691,10 @@ void occView::popup(int /*x*/, int /*y*/)
 {
     //QMdiArea* ws = ApplicationCommonWindow::getWorkspace();
     //QMdiSubWindow* w = ws->activeSubWindow();
-    if (_context->NbSelected())
+
+    qDebug() << "popup called";
+
+    if (_context->NbSelected()) // if any object is selected
     {
         //QList<QAction*>* aList = stApp->getToolActions();
         QMenu* myToolMenu = new QMenu( 0 );
@@ -692,7 +702,7 @@ void occView::popup(int /*x*/, int /*y*/)
         //myToolMenu->addAction( aList->at( ApplicationCommonWindow::ToolShadingId ) );
         //myToolMenu->addAction( aList->at( ApplicationCommonWindow::ToolColorId ) );
 
-        QMenu* myMaterMenu = new QMenu( myToolMenu );
+//        QMenu* myMaterMenu = new QMenu( myToolMenu );
 
         //QList<QAction*>* aMeterActions = ApplicationCommonWindow::getApplication()->getMaterialActions();
 
@@ -711,9 +721,9 @@ void occView::popup(int /*x*/, int /*y*/)
     {
         if (!_backMenu)
         {
-            _backMenu = new QMenu( 0 );
+            _backMenu = new QMenu(nullptr);
 
-            QAction* a = new QAction( QObject::tr("MNU_CH_BACK"), this );
+            QAction* a = new QAction( QObject::tr("Change Background..."), this );
             a->setToolTip( QObject::tr("TBR_CH_BACK") );
             connect(a, &QAction::triggered, this, &occView::onBackground);
             _backMenu->addAction(a);

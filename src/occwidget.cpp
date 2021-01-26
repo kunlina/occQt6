@@ -144,32 +144,38 @@ void occWidget::populateToolBar()
     // mouse actions
     auto mouseGroup = new QActionGroup(this);
 
+    auto orbitAction = new QAction("Orbit", this);
+    orbitAction->setCheckable(true);
+    orbitAction->setIcon(hiresPixmap(":/icons/orbit.svg", iconColor, iconHeight));
+    connect(orbitAction, &QAction::triggered, _occView, &occView::orbit);
+    mouseGroup->addAction(orbitAction);
+
     auto selectAction = new QAction("Select", this);
     selectAction->setCheckable(true);
-    selectAction->setIcon(hiresPixmap(":/lucideicons/mouse-pointer.svg", iconColor, iconHeight));
-    //connect(selectAction, &QAction::triggered, _occView, &occView::select);
+    selectAction->setIcon(hiresPixmap(":/icons/lucide/mouse-pointer.svg", iconColor, iconHeight));
+    connect(selectAction, &QAction::triggered, _occView, &occView::select);
     mouseGroup->addAction(selectAction);
 
     auto zoomAction = new QAction("Zoom", this);
     zoomAction->setCheckable(true);
-    zoomAction->setIcon(hiresPixmap(":/lucideicons/zoom-in.svg", iconColor, iconHeight));
+    zoomAction->setIcon(hiresPixmap(":/icons/lucide/zoom-in.svg", iconColor, iconHeight));
     connect(zoomAction, &QAction::triggered, _occView, &occView::zoom);
     mouseGroup->addAction(zoomAction);
 
     auto panAction = new QAction("Pan", this);
     panAction->setCheckable(true);
-    panAction->setIcon(hiresPixmap(":/lucideicons/move.svg", iconColor, iconHeight));
+    panAction->setIcon(hiresPixmap(":/icons/lucide/move.svg", iconColor, iconHeight));
     connect(panAction, &QAction::triggered, _occView, &occView::pan);
     mouseGroup->addAction(panAction);
 
     auto rotate= new QAction("Rotate", this);
     rotate->setCheckable(true);
-    rotate->setIcon(hiresPixmap(":/lucideicons/rotate-ccw.svg", iconColor, iconHeight));
+    rotate->setIcon(hiresPixmap(":/icons/lucide/rotate-ccw.svg", iconColor, iconHeight));
     connect(rotate, &QAction::triggered, _occView, &occView::rotation);
     mouseGroup->addAction(rotate);
 
     // select first action
-    selectAction->setChecked(true);
+    orbitAction->setChecked(true);
 
     _toolBar->addActions(mouseGroup->actions());
 
@@ -177,8 +183,8 @@ void occWidget::populateToolBar()
     _toolBar->addSeparator();
 
     // add reset action
-    auto reset = new QAction("Reset", this);
-    reset->setIcon(hiresPixmap(":/lucideicons/reset.svg", iconColor, iconHeight));
+    auto reset = new QAction("Reset zoom", this);
+    reset->setIcon(hiresPixmap(":/icons/lucide/reset.svg", iconColor, iconHeight));
     connect(reset, &QAction::triggered, _occView, &occView::reset);
     _toolBar->addAction(reset);
 
@@ -187,32 +193,32 @@ void occWidget::populateToolBar()
 
     // add primitives
     auto boxAction = new QAction("Box", this);
-    boxAction->setIcon(hiresPixmap(":/lucideicons/box.svg", iconColor, iconHeight));
+    boxAction->setIcon(hiresPixmap(":/icons/lucide/box.svg", iconColor, iconHeight));
     connect(boxAction, &QAction::triggered, this, &occWidget::addBox);
     _toolBar->addAction(boxAction);
 
     auto coneAction = new QAction("Cone", this);
-    coneAction->setIcon(hiresPixmap(":/lucideicons/triangle.svg", iconColor, iconHeight));
+    coneAction->setIcon(hiresPixmap(":/icons/lucide/triangle.svg", iconColor, iconHeight));
     connect(coneAction, &QAction::triggered, this, &occWidget::addCone);
     _toolBar->addAction(coneAction);
 
     auto sphereAction = new QAction("Sphere", this);
-    sphereAction->setIcon(hiresPixmap(":/lucideicons/globe.svg", iconColor, iconHeight));
+    sphereAction->setIcon(hiresPixmap(":/icons/lucide/globe.svg", iconColor, iconHeight));
     connect(sphereAction, &QAction::triggered, this, &occWidget::addSphere);
     _toolBar->addAction(sphereAction);
 
     auto cylinderAction = new QAction("Cylinder", this);
-    cylinderAction->setIcon(hiresPixmap(":/lucideicons/database.svg", iconColor, iconHeight));
+    cylinderAction->setIcon(hiresPixmap(":/icons/lucide/database.svg", iconColor, iconHeight));
     connect(cylinderAction, &QAction::triggered, this, &occWidget::addCylinder);
     _toolBar->addAction(cylinderAction);
 
     auto torusAction = new QAction("Torus", this);
-    torusAction->setIcon(hiresPixmap(":/lucideicons/disc.svg", iconColor, iconHeight));
+    torusAction->setIcon(hiresPixmap(":/icons/lucide/disc.svg", iconColor, iconHeight));
     connect(torusAction, &QAction::triggered, this, &occWidget::addTorus);
     _toolBar->addAction(torusAction);
 
     auto textAction = new QAction("Text", this);
-    textAction->setIcon(hiresPixmap(":/lucideicons/type.svg", iconColor, iconHeight));
+    textAction->setIcon(hiresPixmap(":/icons/lucide/type.svg", iconColor, iconHeight));
     connect(textAction, &QAction::triggered, this, &occWidget::addText);
     _toolBar->addAction(textAction);
 
@@ -221,40 +227,40 @@ void occWidget::populateToolBar()
 
     // add fillet,chamfer, etc
     auto filletAction = new QAction("Fillet", this);
-    filletAction->setIcon(hiresPixmap(":/lucideicons/fillet.svg", iconColor, iconHeight));
+    filletAction->setIcon(hiresPixmap(":/icons/fillet.svg", iconColor, iconHeight));
     connect(filletAction, &QAction::triggered, this, &occWidget::makeFillet);
     _toolBar->addAction(filletAction);
 
     auto chamferAction = new QAction("Chamfer", this);
-    chamferAction->setIcon(hiresPixmap(":/lucideicons/chamfer.svg", iconColor, iconHeight));
+    chamferAction->setIcon(hiresPixmap(":/icons/chamfer.svg", iconColor, iconHeight));
     connect(chamferAction, &QAction::triggered, this, &occWidget::makeChamfer);
     _toolBar->addAction(chamferAction);
 
     auto extrudeAction = new QAction("Extrude", this);
-    extrudeAction->setIcon(hiresPixmap(":/lucideicons/extrude.svg", iconColor, iconHeight));
+    extrudeAction->setIcon(hiresPixmap(":/icons/extrude.svg", iconColor, iconHeight));
     connect(extrudeAction, &QAction::triggered, this, &occWidget::makeExtrude);
     _toolBar->addAction(extrudeAction);
 
     auto revolAction = new QAction("Revolve", this);
-    revolAction->setIcon(hiresPixmap(":/lucideicons/revol.svg", iconColor, iconHeight));
+    revolAction->setIcon(hiresPixmap(":/icons/revol.svg", iconColor, iconHeight));
     connect(revolAction, &QAction::triggered, this, &occWidget::makeRevol);
     _toolBar->addAction(revolAction);
 
     auto loftAction = new QAction("Loft", this);
-    loftAction->setIcon(hiresPixmap(":/lucideicons/loft.svg", iconColor, iconHeight));
+    loftAction->setIcon(hiresPixmap(":/icons/loft.svg", iconColor, iconHeight));
     connect(loftAction, &QAction::triggered, this, &occWidget::makeLoft);
     _toolBar->addAction(loftAction);
 
     _toolBar->addSeparator();
 
     auto boolCutAction = new QAction("Bool Cut", this);
-    boolCutAction->setIcon(hiresPixmap(":/lucideicons/boolCut.svg", iconColor, iconHeight));
+    boolCutAction->setIcon(hiresPixmap(":/icons/boolCut.svg", iconColor, iconHeight));
     connect(boolCutAction, &QAction::triggered, this, &occWidget::boolCut);
     _toolBar->addAction(boolCutAction);
 
     // add about action
     auto about = new QAction("About", this);
-    about->setIcon(hiresPixmap(":/lucideicons/info.svg", iconColor, iconHeight));
+    about->setIcon(hiresPixmap(":/icons/lucide/info.svg", iconColor, iconHeight));
     connect(about, &QAction::triggered, this, &occWidget::about);
     _toolBar->addAction(about);
 
