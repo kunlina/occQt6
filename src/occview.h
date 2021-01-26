@@ -71,12 +71,10 @@ public:
 
     //explicit occView(QWidget *parent = nullptr);
     //const Handle(AIS_InteractiveContext)& getContext() const { return _context;}
-    const Handle(Graphic3d_Structure)& getStruct() const {return _struct;}
 
     virtual void init();
     bool dump (Standard_CString file);
-    QList<QAction*>* getViewActions();
-    QList<QAction*>* getRaytraceActions();
+
     void noActiveActions();
     void isShadingMode();
 
@@ -107,8 +105,12 @@ public:
                                                    Standard_Boolean& );
 
     //getters
-    Handle(V3d_View)& getView() {return _view;}
-    Handle(AIS_InteractiveContext)& getContext() {return _context;};
+    const Handle(V3d_View)& getView() const {return _view;}
+    const Handle(AIS_InteractiveContext)& getContext() const {return _context;};
+    const Handle(Graphic3d_Structure)& getStruct() const {return _struct;}
+
+    QList<QAction*>* getViewActions();
+    QList<QAction*>* getRaytraceActions();
 
 signals:
     void selectionChanged();
@@ -128,7 +130,7 @@ public slots:
     void zoom() {setCurAction(curAction3d_DynamicZooming);};
     void pan() {setCurAction(curAction3d_DynamicPanning);};
     void globalPan() { _curZoom = _view->Scale(); _view->FitAll(); setCurAction(curAction3d_GlobalPanning);}
-    void front() {_view->SetProj(V3d_Yneg);};
+    void front() {_view->SetProj(V3d_Yneg);_view->FitAll();};
     void back() {_view->SetProj(V3d_Ypos);};
     void top() {_view->SetProj(V3d_Zpos);};
     void bottom() {_view->SetProj(V3d_Zneg);};
@@ -186,6 +188,8 @@ private:
     bool _isShadowsEnabled {true};
     bool _isReflectionsEnabled {false};
     bool _isAntialiasingEnabled {false};
+
+    const double _devPx;
 
     //void dragEvent(int x, int y);
     //void drawRubberBand(int minX, int minY, int maxX, int maxY);

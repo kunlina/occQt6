@@ -94,7 +94,7 @@ static QCursor* zoomCursor    = nullptr;
 static QCursor* rotCursor     = nullptr;
 
 
-occView::occView(QWidget *parent) : QWidget(parent)
+occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
 {
     //_context = context;
     init();
@@ -182,12 +182,12 @@ void occView::init()
     style->SetDisplayMode(AIS_Shaded);
     _context->SetSelectionStyle(style);
 
-    auto bgcolor = Quantity_Color(.12, .12, .12, Quantity_TOC_sRGB);
+    auto bgcolor = Quantity_Color(.13, .13, .13, Quantity_TOC_sRGB);
     _view->SetBackgroundColor(bgcolor);
     _view->MustBeResized();
 
     // Initialize position, color and length of Trihedron axes. The scale is in percent of the window width.
-    auto trihedronScale = this->devicePixelRatioF() * 0.1;
+    auto trihedronScale = this->devicePixelRatio() * 0.1;
     _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, trihedronScale, V3d_ZBUFFER);
 
     //    //    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
@@ -243,7 +243,7 @@ void occView::OnSelectionChanged(const Handle(AIS_InteractiveContext)&,
 void occView::hlrOn()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    _view->SetComputedMode (true);
+    _view->SetComputedMode(true);
     _view->Redraw();
     QApplication::restoreOverrideCursor();
 }
@@ -251,7 +251,7 @@ void occView::hlrOn()
 void occView::hlrOff()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    _view->SetComputedMode (false);
+    _view->SetComputedMode(false);
     _view->Redraw();
     QApplication::restoreOverrideCursor();
 }
@@ -595,8 +595,8 @@ void occView::activateCursor(const curAction3d mode)
 
 void occView::mousePressEvent(QMouseEvent* event)
 {
-    Graphic3d_Vec2i point {event->pos().x(), event->pos().y()};
-    point *= devicePixelRatioF();
+    Graphic3d_Vec2i point;
+    point.SetValues(_devPx*event->pos().x(), _devPx*event->pos().y());
     const Aspect_VKeyFlags flags = qtMouseModifiers2VKeys (event->modifiers());
     if (!_view.IsNull() && UpdateMouseButtons(point, qtMouseButtons2VKeys (event->buttons()), flags, false))
         updateView();
@@ -607,8 +607,8 @@ void occView::mousePressEvent(QMouseEvent* event)
 
 void occView::mouseReleaseEvent(QMouseEvent* event)
 {
-    Graphic3d_Vec2i point {event->pos().x(), event->pos().y()};
-    point *= devicePixelRatioF();
+    Graphic3d_Vec2i point;
+    point.SetValues(_devPx*event->pos().x(), _devPx*event->pos().y());
     const Aspect_VKeyFlags flags = qtMouseModifiers2VKeys(event->modifiers());
     if (!_view.IsNull() && UpdateMouseButtons(point, qtMouseButtons2VKeys(event->buttons()), flags, false))
         updateView();
@@ -626,20 +626,21 @@ void occView::mouseReleaseEvent(QMouseEvent* event)
 
 void occView::mouseMoveEvent(QMouseEvent* event)
 {
-    Graphic3d_Vec2i newPos {event->pos().x(), event->pos().y()};
-    newPos *= devicePixelRatioF();
-    if (!_view.IsNull() && UpdateMousePosition(newPos, qtMouseButtons2VKeys(event->buttons()), qtMouseModifiers2VKeys(event->modifiers()), false))
+    Graphic3d_Vec2i point;
+    point.SetValues(_devPx*event->pos().x(), _devPx*event->pos().y());
+    if (!_view.IsNull() && UpdateMousePosition(point, qtMouseButtons2VKeys(event->buttons()), qtMouseModifiers2VKeys(event->modifiers()), false))
         updateView();
 }
 
 
 void occView::wheelEvent(QWheelEvent* event)
 {
-    const Graphic3d_Vec2i pos {static_cast<int>(event->position().x()), static_cast<int>(event->position().y())};
+    Graphic3d_Vec2i pos;
+    pos.SetValues(event->position().x(), event->position().y());
     int numPixels = event->pixelDelta().y();
     int numDegrees = event->angleDelta().y() / 8;
 
-    double delta {0.};
+    Standard_Real delta {0.};
     if (numPixels != 0)
         delta = numPixels;
     else if (numDegrees != 0)
@@ -723,7 +724,18 @@ void occView::popup(int /*x*/, int /*y*/)
         {
             _backMenu = new QMenu(nullptr);
 
-            QAction* a = new QAction( QObject::tr("Change Background..."), this );
+            initViewActions();
+            auto viewMenu = _backMenu->addMenu(tr("View"));
+            for (auto action : *_viewActions)
+                viewMenu->addAction(action);
+
+            initRaytraceActions();
+            auto raytraceMenu = _backMenu->addMenu(tr("Raytracing"));
+            for (auto action : *_raytraceActions)
+                raytraceMenu->addAction(action);
+
+
+            QAction* a = new QAction( QObject::tr("Change Background"), this );
             a->setToolTip( QObject::tr("TBR_CH_BACK") );
             connect(a, &QAction::triggered, this, &occView::onBackground);
             _backMenu->addAction(a);
@@ -773,7 +785,7 @@ void occView::onBackground()
     Standard_Real R1;
     Standard_Real G1;
     Standard_Real B1;
-    _view->BackgroundColor(Quantity_TOC_RGB,R1,G1,B1);
+    _view->BackgroundColor(Quantity_TOC_sRGB,R1,G1,B1);
     aColor.setRgb((Standard_Integer)(R1 * 255), (Standard_Integer)(G1 * 255), (Standard_Integer)(B1 * 255));
 
     QColor aRetColor = QColorDialog::getColor(aColor);
@@ -783,7 +795,7 @@ void occView::onBackground()
         R1 = aRetColor.red()/255.;
         G1 = aRetColor.green()/255.;
         B1 = aRetColor.blue()/255.;
-        _view->SetBackgroundColor(Quantity_TOC_RGB,R1,G1,B1);
+        _view->SetBackgroundColor(Quantity_TOC_sRGB,R1,G1,B1);
     }
     _view->Redraw();
 }
