@@ -26,6 +26,7 @@
 ** DEALINGS IN THE SOFTWARE.                                                **
 *****************************************************************************/
 
+
 #include "occwidget.h"
 
 #include <QApplication>

@@ -114,6 +114,7 @@ protected:
     Standard_Integer _yTop;
     Standard_Integer _xRight;
     Standard_Integer _yBottom;
+    const Standard_Real _devPx;
     QWidget* _myWidget;
 };
 

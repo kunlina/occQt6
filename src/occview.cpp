@@ -23,23 +23,18 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QOperatingSystemVersion>
 #include <QPalette>
 #include <QStyleFactory>
+#include <QSurfaceFormat>
 #include <QWheelEvent>
 #include <Standard_WarningsRestore.hxx>
 
 // occ headers
 #include <Aspect_DisplayConnection.hxx>
-
 #include <Graphic3d_GraphicDriver.hxx>
 #include <Graphic3d_TextureEnv.hxx>
-#include <OpenGl_Context.hxx>
 #include <OpenGl_GraphicDriver.hxx>
-
-//#include <TCollection_AsciiString.hxx>
-//#include <Graphic3d_NameOfMaterial.hxx>
-//#include <V3d_TypeOfSurfaceDetail.hxx>
-//#include <Standard_Type.hxx>
 
 // private headers
 #include "occwindow.h"
@@ -96,6 +91,23 @@ static QCursor* rotCursor     = nullptr;
 
 occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
 {
+
+    // On macOS, this is needed in order to use GL 4.1 instead of fallback-solution GL 2.1. Qt doesn't do that on its own
+    //    auto current = QOperatingSystemVersion::current();
+    //    if (current.type() == QOperatingSystemVersion::MacOS && current >= QOperatingSystemVersion(QOperatingSystemVersion::MacOSMojave))
+    //    {
+    //        QSurfaceFormat format;
+    //        format.setColorSpace(QSurfaceFormat::sRGBColorSpace); //broken in Qt6
+    //        format.setRenderableType(QSurfaceFormat::OpenGL);
+    //        format.setDepthBufferSize(24);
+    //        format.setStencilBufferSize(4);
+    //        format.setSamples(4);    // Set the number of samples used for multisampling
+    //        format.setVersion(4, 1);
+    //        format.setRenderableType(QSurfaceFormat::OpenGL);
+    //        format.setProfile(QSurfaceFormat::CoreProfile);
+    //        this->setFormat(format);
+    //    }
+
     //_context = context;
     init();
 
@@ -134,43 +146,32 @@ occView::~occView()
 // ------------------------------------------------------------------------------------------------
 void occView::init()
 {
-    //    if ( _view.IsNull() )
-    //        _view = _context->CurrentViewer()->CreateView();
-
-    //    Handle(occWindow) hWnd = new occWindow( this );
-    //    _view->SetWindow (hWnd);
-    //    if ( !hWnd->IsMapped() )
-    //        hWnd->Map();
-
-    //    _view->MustBeResized();
-
-
-    Handle_Aspect_DisplayConnection aDisplayConnection;
+    Handle(Aspect_DisplayConnection) aDisplayConnection;
     Handle_OpenGl_GraphicDriver aGraphicDriver;
 
-    // 1. Create a 3D viewer.
+    // Create a 3D viewer.
     aDisplayConnection = new Aspect_DisplayConnection();
     aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
 
     _viewer = new V3d_Viewer(aGraphicDriver);
 
-    // 2. Create an interactive context.
+    // Create a graphic structure in this Viewer
+    _struct = new Graphic3d_Structure (_viewer->StructureManager());
+
+    // Create an interactive context.
     _context = new AIS_InteractiveContext(_viewer);
     _context->SetDisplayMode(AIS_Shaded, Standard_True);
 
     if ( _view.IsNull() )
         _view = _context->CurrentViewer()->CreateView();
 
-    Handle(occWindow) hWnd = new occWindow( this );
+    Handle(occWindow) hWnd = new occWindow(this);
 
     _view->SetWindow (hWnd);
     if ( !hWnd->IsMapped() )
         hWnd->Map();
 
     _view->MustBeResized();
-
-    // Create a graphic structure in this Viewer
-    _struct = new Graphic3d_Structure (_viewer->StructureManager());
 
     // Set up lights etc
     _viewer->SetDefaultLights();
@@ -190,26 +191,8 @@ void occView::init()
     auto trihedronScale = this->devicePixelRatio() * 0.1;
     _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, trihedronScale, V3d_ZBUFFER);
 
-    //    //    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
     if (_isRaytracing)
         _view->ChangeRenderingParams().Method = Graphic3d_RM_RAYTRACING;
-
-    //    //        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
-    //    //        // specifies rendering mode
-    //    //        aParams.Method = Graphic3d_RM_RAYTRACING;
-    //    //        // maximum ray-tracing depth
-    //    //        aParams.RaytracingDepth = 3;
-    //    //        // enable shadows rendering
-    //    //        aParams.IsShadowEnabled = true;
-    //    //        // enable specular reflections
-    //    //        aParams.IsReflectionEnabled = true;
-    //    //        // enable adaptive anti-aliasing
-    //    //        aParams.IsAntialiasingEnabled = true;
-    //    //        // enable light propagation through transparent media
-    //    //        aParams.IsTransparentShadowEnabled = true;
-    //    //        // update the view
-    //    //        _view->Update();
-    //    //    }
 }
 
 
@@ -703,7 +686,7 @@ void occView::popup(int /*x*/, int /*y*/)
         //myToolMenu->addAction( aList->at( ApplicationCommonWindow::ToolShadingId ) );
         //myToolMenu->addAction( aList->at( ApplicationCommonWindow::ToolColorId ) );
 
-//        QMenu* myMaterMenu = new QMenu( myToolMenu );
+        //        QMenu* myMaterMenu = new QMenu( myToolMenu );
 
         //QList<QAction*>* aMeterActions = ApplicationCommonWindow::getApplication()->getMaterialActions();
 

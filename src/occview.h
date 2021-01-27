@@ -72,7 +72,7 @@ public:
     //explicit occView(QWidget *parent = nullptr);
     //const Handle(AIS_InteractiveContext)& getContext() const { return _context;}
 
-    virtual void init();
+    void init();
     bool dump (Standard_CString file);
 
     void noActiveActions();
@@ -95,10 +95,8 @@ public:
                                TopAbs_ShapeEnum shapeType);
     static QString getShapeType(TopAbs_ShapeEnum shapeType);
 
-    Standard_EXPORT static void onButtonUserAction(int ExerciseSTEP,
-                                                   Handle(AIS_InteractiveContext)& );
-    Standard_EXPORT static void doSelection(int Id,
-                                            Handle(AIS_InteractiveContext)& );
+    Standard_EXPORT static void onButtonUserAction(int ExerciseSTEP, Handle(AIS_InteractiveContext)& );
+    Standard_EXPORT static void doSelection(int Id, Handle(AIS_InteractiveContext)& );
     Standard_EXPORT static void onSetSelectionMode(Handle(AIS_InteractiveContext)&,
                                                    Standard_Integer&,
                                                    TopAbs_ShapeEnum& SelectionMode,
@@ -189,7 +187,7 @@ private:
     bool _isReflectionsEnabled {false};
     bool _isAntialiasingEnabled {false};
 
-    const double _devPx;
+    const Standard_Real _devPx;
 
     //void dragEvent(int x, int y);
     //void drawRubberBand(int minX, int minY, int maxX, int maxY);
