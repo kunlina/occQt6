@@ -153,8 +153,12 @@ void occView::init()
     aDisplayConnection = new Aspect_DisplayConnection();
     aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
 
-    aGraphicDriver->ChangeOptions().contextCompatible=false;
-//    aGraphicDriver->ChangeOptions().ffpEnable=false;
+    // fix OpenGL issues on MacOS: https://old.opencascade.com/content/ray-tracing-requires-opengl-31-and-higher
+#if __APPLE__
+    aGraphicDriver->ChangeOptions().contextCompatible = false;
+    // below command is not needed, kept here in case it is required in the future
+    // aGraphicDriver->ChangeOptions().ffpEnable=false;
+#endif
 
     _viewer = new V3d_Viewer(aGraphicDriver);
 
