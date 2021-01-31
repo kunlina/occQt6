@@ -33,6 +33,8 @@
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setAttribute (Qt::AA_UseDesktopOpenGL);
+
     QApplication a(argc, argv);
     occWidget w;
     w.show();

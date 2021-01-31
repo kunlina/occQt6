@@ -153,6 +153,9 @@ void occView::init()
     aDisplayConnection = new Aspect_DisplayConnection();
     aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
 
+    aGraphicDriver->ChangeOptions().contextCompatible=false;
+//    aGraphicDriver->ChangeOptions().ffpEnable=false;
+
     _viewer = new V3d_Viewer(aGraphicDriver);
 
     // Create a graphic structure in this Viewer
@@ -292,6 +295,7 @@ void occView::enableRaytracing()
 {
     if (!_isRaytracing)
         _view->ChangeRenderingParams().Method = Graphic3d_RM_RAYTRACING;
+
 
     _isRaytracing = true;
     _context->UpdateCurrentViewer();
