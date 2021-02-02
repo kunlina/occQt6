@@ -183,7 +183,7 @@ void occWidget::populateToolBar()
     _toolBar->addSeparator();
 
     // add reset action
-    auto reset = new QAction("Reset zoom", this);
+    auto reset = new QAction("Reset View", this);
     reset->setIcon(hiresPixmap(":/icons/lucide/reset.svg", iconColor, iconHeight));
     connect(reset, &QAction::triggered, _occView, &occView::reset);
     _toolBar->addAction(reset);
