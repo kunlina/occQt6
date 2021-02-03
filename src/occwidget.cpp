@@ -39,15 +39,14 @@
 
 #include <gp_Circ.hxx>
 #include <gp_Elips.hxx>
+#include <gp_Lin2d.hxx>
 #include <gp_Pln.hxx>
-
-#include <TopoDS.hxx>
-#include <TopExp.hxx>
-#include <TopExp_Explorer.hxx>
 
 #include <BRepLib.hxx>
 
+#include <BRepAlgoAPI_Common.hxx>
 #include <BRepAlgoAPI_Cut.hxx>
+#include <BRepAlgoAPI_Fuse.hxx>
 
 #include <BRepBuilderAPI.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
@@ -62,6 +61,8 @@
 
 #include <BRepOffsetAPI_ThruSections.hxx>
 
+#include <BRepOffsetAPI_MakePipe.hxx>
+
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeSphere.hxx>
@@ -70,8 +71,21 @@
 #include <BRepPrimAPI_MakePrism.hxx>
 #include <BRepPrimAPI_MakeRevol.hxx>
 
+#include <GCE2d_MakeSegment.hxx>
+
+#include <Geom_ConicalSurface.hxx>
+#include <Geom_ToroidalSurface.hxx>
+#include <Geom_CylindricalSurface.hxx>
+
 #include <Graphic3d_Group.hxx>
 #include <Graphic3d_Text.hxx>
+
+#include <TopoDS.hxx>
+#include <TopExp.hxx>
+#include <TopExp_Explorer.hxx>
+
+
+
 
 
 // private headers
@@ -131,152 +145,141 @@ void occWidget::about()
 }
 
 
+QAction* occWidget::addActionToToolBar(QString iconText,
+                                       QString iconFileName,
+                                       QString toolTipText,
+                                       bool addToToolBar)
+{
+    const int iconHeight = _toolBar->iconSize().height();
+    auto action = new QAction(iconText, this);
+    action->setToolTip(toolTipText);
+    iconFileName.prepend(":/icons/");
+    action->setIcon(hiresPixmap(iconFileName, _iconColor, iconHeight));
+    if (addToToolBar)
+        _toolBar->addAction(action);
+
+    return action;
+}
+
+
 void occWidget::populateToolBar()
 {
-
-    auto iconSize = _toolBar->iconSize();
-    _toolBar->setIconSize(QSize(iconSize.width()*0.75, iconSize.height()*0.75));
-    _toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-
-    const int iconHeight = _toolBar->iconSize().height();
-    const QString iconColor {"#778ca3"}; //blue grey
+    _toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
 
     // mouse actions
-    auto mouseGroup = new QActionGroup(this);
+    bool addToToolbar {false};
+    auto orbitAction = addActionToToolBar("Orbit", "orbit.svg", "Orbit mode", addToToolbar);
+    auto selectAction = addActionToToolBar("Select", "lucide/mouse-pointer.svg", "Select items", addToToolbar);
+    auto zoomAction = addActionToToolBar("Zoom", "lucide/zoom-in.svg", "Zoom mode", addToToolbar);
+    auto panAction = addActionToToolBar("Pan", "lucide/move.svg", "Pan mode", addToToolbar);
+    auto rotateAction = addActionToToolBar("Rotate", "lucide/rotate-ccw.svg", "Rotate mode", addToToolbar);
 
-    auto orbitAction = new QAction("Orbit", this);
     orbitAction->setCheckable(true);
-    orbitAction->setIcon(hiresPixmap(":/icons/orbit.svg", iconColor, iconHeight));
-    connect(orbitAction, &QAction::triggered, _occView, &occView::orbit);
-    mouseGroup->addAction(orbitAction);
-
-    auto selectAction = new QAction("Select", this);
     selectAction->setCheckable(true);
-    selectAction->setIcon(hiresPixmap(":/icons/lucide/mouse-pointer.svg", iconColor, iconHeight));
-    connect(selectAction, &QAction::triggered, _occView, &occView::select);
-    mouseGroup->addAction(selectAction);
-
-    auto zoomAction = new QAction("Zoom", this);
     zoomAction->setCheckable(true);
-    zoomAction->setIcon(hiresPixmap(":/icons/lucide/zoom-in.svg", iconColor, iconHeight));
-    connect(zoomAction, &QAction::triggered, _occView, &occView::zoom);
-    mouseGroup->addAction(zoomAction);
-
-    auto panAction = new QAction("Pan", this);
     panAction->setCheckable(true);
-    panAction->setIcon(hiresPixmap(":/icons/lucide/move.svg", iconColor, iconHeight));
-    connect(panAction, &QAction::triggered, _occView, &occView::pan);
-    mouseGroup->addAction(panAction);
-
-    auto rotate= new QAction("Rotate", this);
-    rotate->setCheckable(true);
-    rotate->setIcon(hiresPixmap(":/icons/lucide/rotate-ccw.svg", iconColor, iconHeight));
-    connect(rotate, &QAction::triggered, _occView, &occView::rotation);
-    mouseGroup->addAction(rotate);
-
+    rotateAction->setCheckable(true);
     // select first action
     orbitAction->setChecked(true);
-
+    // add to QActionGroup and then add to toolbar
+    auto mouseGroup = new QActionGroup(this);
+    mouseGroup->addAction(orbitAction);
+    mouseGroup->addAction(selectAction);
+    mouseGroup->addAction(zoomAction);
+    mouseGroup->addAction(panAction);
+    mouseGroup->addAction(rotateAction);
     _toolBar->addActions(mouseGroup->actions());
 
-    // add separator
-    _toolBar->addSeparator();
+    // all actions below will be added to the toolbar directly
+    addToToolbar = true;
 
-    // add reset action
-    auto reset = new QAction("Reset View", this);
-    reset->setIcon(hiresPixmap(":/icons/lucide/reset.svg", iconColor, iconHeight));
-    connect(reset, &QAction::triggered, _occView, &occView::reset);
-    _toolBar->addAction(reset);
-
-    // add separator
+    // add reset view action
     _toolBar->addSeparator();
+    auto reset = addActionToToolBar("Reset View", "lucide/reset.svg", "Reset view", addToToolbar);// new QAction("Reset View", this);
 
     // add primitives
-    auto boxAction = new QAction("Box", this);
-    boxAction->setIcon(hiresPixmap(":/icons/lucide/box.svg", iconColor, iconHeight));
-    connect(boxAction, &QAction::triggered, this, &occWidget::addBox);
-    _toolBar->addAction(boxAction);
-
-    auto coneAction = new QAction("Cone", this);
-    coneAction->setIcon(hiresPixmap(":/icons/lucide/triangle.svg", iconColor, iconHeight));
-    connect(coneAction, &QAction::triggered, this, &occWidget::addCone);
-    _toolBar->addAction(coneAction);
-
-    auto sphereAction = new QAction("Sphere", this);
-    sphereAction->setIcon(hiresPixmap(":/icons/lucide/globe.svg", iconColor, iconHeight));
-    connect(sphereAction, &QAction::triggered, this, &occWidget::addSphere);
-    _toolBar->addAction(sphereAction);
-
-    auto cylinderAction = new QAction("Cylinder", this);
-    cylinderAction->setIcon(hiresPixmap(":/icons/lucide/database.svg", iconColor, iconHeight));
-    connect(cylinderAction, &QAction::triggered, this, &occWidget::addCylinder);
-    _toolBar->addAction(cylinderAction);
-
-    auto torusAction = new QAction("Torus", this);
-    torusAction->setIcon(hiresPixmap(":/icons/lucide/disc.svg", iconColor, iconHeight));
-    connect(torusAction, &QAction::triggered, this, &occWidget::addTorus);
-    _toolBar->addAction(torusAction);
-
-    auto textAction = new QAction("Text", this);
-    textAction->setIcon(hiresPixmap(":/icons/lucide/type.svg", iconColor, iconHeight));
-    connect(textAction, &QAction::triggered, this, &occWidget::addText);
-    _toolBar->addAction(textAction);
-
-    // add separator
     _toolBar->addSeparator();
+    auto boxAction = addActionToToolBar("Box", "lucide/box.svg", "Add box", addToToolbar);// new QAction("Box", this);
+    auto coneAction = addActionToToolBar("Cone", "lucide/triangle.svg", "Add triangles", addToToolbar); // new QAction("Cone", this);
+    auto sphereAction = addActionToToolBar("Sphere", "lucide/globe.svg", "Add sphere", addToToolbar);
+    auto cylinderAction = addActionToToolBar("Cylinder", "lucide/database.svg", "Add cylinders", addToToolbar);
+    auto torusAction = addActionToToolBar("Torus", "lucide/disc.svg", "Add torus", addToToolbar);
+    auto textAction = addActionToToolBar("Text", "lucide/type.svg", "Add text", addToToolbar);
 
     // add fillet,chamfer, etc
-    auto filletAction = new QAction("Fillet", this);
-    filletAction->setIcon(hiresPixmap(":/icons/fillet.svg", iconColor, iconHeight));
-    connect(filletAction, &QAction::triggered, this, &occWidget::makeFillet);
-    _toolBar->addAction(filletAction);
-
-    auto chamferAction = new QAction("Chamfer", this);
-    chamferAction->setIcon(hiresPixmap(":/icons/chamfer.svg", iconColor, iconHeight));
-    connect(chamferAction, &QAction::triggered, this, &occWidget::makeChamfer);
-    _toolBar->addAction(chamferAction);
-
-    auto extrudeAction = new QAction("Extrude", this);
-    extrudeAction->setIcon(hiresPixmap(":/icons/extrude.svg", iconColor, iconHeight));
-    connect(extrudeAction, &QAction::triggered, this, &occWidget::makeExtrude);
-    _toolBar->addAction(extrudeAction);
-
-    auto revolAction = new QAction("Revolve", this);
-    revolAction->setIcon(hiresPixmap(":/icons/revol.svg", iconColor, iconHeight));
-    connect(revolAction, &QAction::triggered, this, &occWidget::makeRevol);
-    _toolBar->addAction(revolAction);
-
-    auto loftAction = new QAction("Loft", this);
-    loftAction->setIcon(hiresPixmap(":/icons/loft.svg", iconColor, iconHeight));
-    connect(loftAction, &QAction::triggered, this, &occWidget::makeLoft);
-    _toolBar->addAction(loftAction);
-
     _toolBar->addSeparator();
+    auto filletAction = addActionToToolBar("Fillet", "fillet.svg", "Add fillet example", addToToolbar);
+    auto chamferAction = addActionToToolBar("Chamfer", "chamfer.svg", "Add chamfer example", addToToolbar);
+    auto extrudeAction = addActionToToolBar("Extrude", "extrude.svg", "Add extrusion example", addToToolbar);
+    auto revolAction = addActionToToolBar("Revolve", "revol.svg", "Add revolution example", addToToolbar);
+    auto loftAction = addActionToToolBar("Loft", "loft.svg", "Add loft example", addToToolbar);
 
-    auto boolCutAction = new QAction("Bool Cut", this);
-    boolCutAction->setIcon(hiresPixmap(":/icons/boolCut.svg", iconColor, iconHeight));
-    connect(boolCutAction, &QAction::triggered, this, &occWidget::boolCut);
-    _toolBar->addAction(boolCutAction);
+    // boolean operations
+    _toolBar->addSeparator();
+    auto boolCutAction = addActionToToolBar("Boolean Cut", "boolCut.svg", "Add Boolean cut operation", addToToolbar);
+    auto boolFuseAction = addActionToToolBar("Boolean Fuse", "boolFuse.svg", "Add Boolean fuse operation", addToToolbar);
+    auto boolCommonAction = addActionToToolBar("Boolean Common", "boolCommon.svg", "Add Boolean common operation", addToToolbar);
+
+    // draw helices
+    _toolBar->addSeparator();
+    auto helixAction = addActionToToolBar("Helices", "helix.svg", "add helices example", addToToolbar);
 
     // add about action
-    auto about = new QAction("About", this);
-    about->setIcon(hiresPixmap(":/icons/lucide/info.svg", iconColor, iconHeight));
-    connect(about, &QAction::triggered, this, &occWidget::about);
-    _toolBar->addAction(about);
-
+    auto about = addActionToToolBar("About", "lucide/info.svg", "About occQt6", addToToolbar);
 
     // add spacer widget to toolBar
     auto empty = new emptySpacerWidget(this);
     _toolBar->insertWidget(about, empty);
 
+    // connections
+    connect(orbitAction, &QAction::triggered, _occView, &occView::orbit);
+    connect(selectAction, &QAction::triggered, _occView, &occView::select);
+    connect(zoomAction, &QAction::triggered, _occView, &occView::zoom);
+    connect(panAction, &QAction::triggered, _occView, &occView::pan);
+    connect(rotateAction, &QAction::triggered, _occView, &occView::rotation);
 
+    connect(reset, &QAction::triggered, _occView, &occView::reset);
+
+    connect(boxAction, &QAction::triggered, this, &occWidget::addBox);
+    connect(coneAction, &QAction::triggered, this, &occWidget::addCone);
+    connect(sphereAction, &QAction::triggered, this, &occWidget::addSphere);
+    connect(cylinderAction, &QAction::triggered, this, &occWidget::addCylinder);
+    connect(torusAction, &QAction::triggered, this, &occWidget::addTorus);
+    connect(textAction, &QAction::triggered, this, &occWidget::addText);
+
+    connect(filletAction, &QAction::triggered, this, &occWidget::makeFillet);
+    connect(chamferAction, &QAction::triggered, this, &occWidget::makeChamfer);
+    connect(extrudeAction, &QAction::triggered, this, &occWidget::makeExtrude);
+    connect(revolAction, &QAction::triggered, this, &occWidget::makeRevol);
+    connect(loftAction, &QAction::triggered, this, &occWidget::makeLoft);
+
+    connect(boolCutAction, &QAction::triggered, this, &occWidget::boolCut);
+    connect(boolFuseAction, &QAction::triggered, this, &occWidget::boolFuse);
+    connect(boolCommonAction, &QAction::triggered, this, &occWidget::boolCommon);
+
+    connect(helixAction, &QAction::triggered, this, &occWidget::testHelix);
+
+    connect(about, &QAction::triggered, this, &occWidget::about);
+}
+
+
+void occWidget::setShapeAttributes(Handle(AIS_Shape) shape, Quantity_Color color)
+{
+    shape->SetColor(color);
+    auto attrib = shape->Attributes();
+    auto line = attrib->FaceBoundaryAspect();
+    line->SetColor(Quantity_NOC_BLACK);
+    line->SetWidth(2.0);
+    attrib->SetFaceBoundaryDraw(Standard_True);
+    attrib->SetFaceBoundaryAspect(line);
+    shape->SetAttributes(attrib);
 }
 
 
 void occWidget::addBox()
 {
-    auto topoBox = BRepPrimAPI_MakeBox(3.0, 4.0, 5.0).Shape();
-    auto aisBox = new AIS_Shape(topoBox);
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(3.0, 4.0, 5.0).Shape();
+    Handle(AIS_Shape) aisBox = new AIS_Shape(topoBox);
     setShapeAttributes(aisBox, Quantity_NOC_AZURE);
 
     _occView->getContext()->Display(aisBox, Standard_True);
@@ -289,14 +292,14 @@ void occWidget::addCone()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(0.0, 10.0, 0.0));
 
-    auto topoReducer = BRepPrimAPI_MakeCone(axis, 3.0, 1.5, 5.0).Shape();
-    auto aisReducer = new AIS_Shape(topoReducer);
+    TopoDS_Shape topoReducer = BRepPrimAPI_MakeCone(axis, 3.0, 1.5, 5.0).Shape();
+    Handle(AIS_Shape) aisReducer = new AIS_Shape(topoReducer);
     setShapeAttributes(aisReducer, Quantity_NOC_BISQUE);
 
     axis.SetLocation(gp_Pnt(8.0, 10.0, 0.0));
 
-    auto topoCone = BRepPrimAPI_MakeCone(axis, 3.0, 0.0, 5.0).Shape();
-    auto aisCone = new AIS_Shape(topoCone);
+    TopoDS_Shape topoCone = BRepPrimAPI_MakeCone(axis, 3.0, 0.0, 5.0).Shape();
+    Handle(AIS_Shape) aisCone = new AIS_Shape(topoCone);
     setShapeAttributes(aisCone, Quantity_NOC_CHOCOLATE);
 
     _occView->getContext()->Display(aisReducer, Standard_True);
@@ -310,8 +313,8 @@ void occWidget::addSphere()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(0.0, 20.0, 3.0));
 
-    auto topoSphere = BRepPrimAPI_MakeSphere(axis, 3.0).Shape();
-    auto aisSphere = new AIS_Shape(topoSphere);
+    TopoDS_Shape topoSphere = BRepPrimAPI_MakeSphere(axis, 3.0).Shape();
+    Handle(AIS_Shape) aisSphere = new AIS_Shape(topoSphere);
     setShapeAttributes(aisSphere, Quantity_NOC_BLUE1);
 
     _occView->getContext()->Display(aisSphere, Standard_True);
@@ -324,14 +327,14 @@ void occWidget::addCylinder()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(0.0, 30.0, 0.0));
 
-    auto topoCylinder = BRepPrimAPI_MakeCylinder(axis, 3.0, 5.0).Shape();
-    auto aisCylinder = new AIS_Shape(topoCylinder);
+    TopoDS_Shape topoCylinder = BRepPrimAPI_MakeCylinder(axis, 3.0, 5.0).Shape();
+    Handle(AIS_Shape) aisCylinder = new AIS_Shape(topoCylinder);
     setShapeAttributes(aisCylinder, Quantity_NOC_RED);
 
     axis.SetLocation(gp_Pnt(8.0, 30.0, 0.0));
 
-    auto topoPie = BRepPrimAPI_MakeCylinder(axis, 3.0, 5.0, M_PI_2 * 3.0).Shape();
-    auto aisPie = new AIS_Shape(topoPie);
+    TopoDS_Shape topoPie = BRepPrimAPI_MakeCylinder(axis, 3.0, 5.0, M_PI_2 * 3.0).Shape();
+    Handle(AIS_Shape) aisPie = new AIS_Shape(topoPie);
     setShapeAttributes(aisPie, Quantity_NOC_TAN);
 
     _occView->getContext()->Display(aisCylinder, Standard_True);
@@ -345,14 +348,14 @@ void occWidget::addTorus()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(0.0, 40.0, 0.0));
 
-    auto topoTorus = BRepPrimAPI_MakeTorus(axis, 3.0, 1.0).Shape();
-    auto aisTorus = new AIS_Shape(topoTorus);
+    TopoDS_Shape topoTorus = BRepPrimAPI_MakeTorus(axis, 3.0, 1.0).Shape();
+    Handle(AIS_Shape) aisTorus = new AIS_Shape(topoTorus);
     setShapeAttributes(aisTorus, Quantity_NOC_YELLOW);
 
     axis.SetLocation(gp_Pnt(8.0, 40.0, 0.0));
 
-    auto topoElbow = BRepPrimAPI_MakeTorus(axis, 3.0, 1.0, M_PI_2).Shape();
-    auto aisElbow = new AIS_Shape(topoElbow);
+    TopoDS_Shape topoElbow = BRepPrimAPI_MakeTorus(axis, 3.0, 1.0, M_PI_2).Shape();
+    Handle(AIS_Shape) aisElbow = new AIS_Shape(topoElbow);
     setShapeAttributes(aisElbow, Quantity_NOC_THISTLE);
 
     _occView->getContext()->Display(aisTorus, Standard_True);
@@ -371,14 +374,14 @@ void occWidget::addText()
     auto group = aStruct->NewGroup();
 
     // change the text aspect
-    auto textAspect = new Graphic3d_AspectText3d();
+    Handle(Graphic3d_AspectText3d) textAspect = new Graphic3d_AspectText3d();
     textAspect->SetTextZoomable(false);
     textAspect->SetTextAngle(0.0);
     group->SetPrimitivesAspect(textAspect);
 
     // add a text primitive to the structure
     float fontHeight = 16.0f * devicePixelRatioF();
-    auto text = new Graphic3d_Text(fontHeight);
+    Handle(Graphic3d_Text) text = new Graphic3d_Text(fontHeight);
     text->SetText("occQt6");
     text->SetPosition (gp_Pnt (-10, 10, 5));
     group->AddText(text);
@@ -393,14 +396,14 @@ void occWidget::makeFillet()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(0.0, 50.0, 0.0));
 
-    auto topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
     BRepFilletAPI_MakeFillet MF(topoBox);
 
     // Add all the edges to fillet.
     for (TopExp_Explorer ex(topoBox, TopAbs_EDGE); ex.More(); ex.Next())
         MF.Add(1.0, TopoDS::Edge(ex.Current()));
 
-    auto aisShape = new AIS_Shape(MF.Shape());
+    Handle(AIS_Shape) aisShape = new AIS_Shape(MF.Shape());
     this->setShapeAttributes(aisShape, Quantity_NOC_VIOLET);
 
     _occView->getContext()->Display(aisShape, Standard_True);
@@ -413,7 +416,7 @@ void occWidget::makeChamfer()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(8.0, 50.0, 0.0));
 
-    auto topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
     BRepFilletAPI_MakeChamfer MC(topoBox);
     TopTools_IndexedDataMapOfShapeListOfShape aEdgeFaceMap;
 
@@ -426,7 +429,7 @@ void occWidget::makeChamfer()
         MC.Add(0.6, 0.6, anEdge, aFace);
     }
 
-    auto aisShape = new AIS_Shape(MC.Shape());
+    Handle(AIS_Shape) aisShape = new AIS_Shape(MC.Shape());
     setShapeAttributes(aisShape, Quantity_NOC_TOMATO);
 
     _occView->getContext()->Display(aisShape, Standard_True);
@@ -437,31 +440,31 @@ void occWidget::makeChamfer()
 void occWidget::makeExtrude()
 {
     // prism a vertex result is an edge.
-    auto vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(0.0, 60.0, 0.0));
-    auto prismVertex = BRepPrimAPI_MakePrism(vertex, gp_Vec(0.0, 0.0, 5.0));
-    auto aisPrismVertex = new AIS_Shape(prismVertex);
+    TopoDS_Vertex vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(0.0, 60.0, 0.0));
+    TopoDS_Shape prismVertex = BRepPrimAPI_MakePrism(vertex, gp_Vec(0.0, 0.0, 5.0));
+    Handle(AIS_Shape) aisPrismVertex = new AIS_Shape(prismVertex);
 
     // prism an edge result is a face.
-    auto edge = BRepBuilderAPI_MakeEdge(gp_Pnt(5.0, 60.0, 0.0), gp_Pnt(10.0, 60.0, 0.0));
-    auto prismEdge = BRepPrimAPI_MakePrism(edge, gp_Vec(0.0, 0.0, 5.0));
-    auto aisPrismEdge = new AIS_Shape(prismEdge);
+    TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(gp_Pnt(5.0, 60.0, 0.0), gp_Pnt(10.0, 60.0, 0.0));
+    TopoDS_Shape prismEdge = BRepPrimAPI_MakePrism(edge, gp_Vec(0.0, 0.0, 5.0));
+    Handle(AIS_Shape) aisPrismEdge = new AIS_Shape(prismEdge);
 
     // prism a wire result is a shell.
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(16.0, 60.0, 0.0));
 
-    auto circleEdge = BRepBuilderAPI_MakeEdge(gp_Circ(axis, 3.0));
-    auto circleWire = BRepBuilderAPI_MakeWire(circleEdge);
-    auto prismCircle = BRepPrimAPI_MakePrism(circleWire, gp_Vec(0.0, 0.0, 5.0));
-    auto aisPrismCircle = new AIS_Shape(prismCircle);
+    TopoDS_Edge circleEdge = BRepBuilderAPI_MakeEdge(gp_Circ(axis, 3.0));
+    TopoDS_Wire circleWire = BRepBuilderAPI_MakeWire(circleEdge);
+    TopoDS_Shape prismCircle = BRepPrimAPI_MakePrism(circleWire, gp_Vec(0.0, 0.0, 5.0));
+    Handle(AIS_Shape) aisPrismCircle = new AIS_Shape(prismCircle);
 
     // prism a face or a shell result is a solid.
     axis.SetLocation(gp_Pnt(24.0, 60.0, 0.0));
-    auto ellipseEdge = BRepBuilderAPI_MakeEdge(gp_Elips(axis, 3.0, 2.0));
-    auto ellipseWire = BRepBuilderAPI_MakeWire(ellipseEdge);
-    auto ellipseFace = BRepBuilderAPI_MakeFace(gp_Pln(gp::XOY()), ellipseWire);
-    auto prismEllipse = BRepPrimAPI_MakePrism(ellipseFace, gp_Vec(0.0, 0.0, 5.0));
-    auto aisPrismEllipse = new AIS_Shape(prismEllipse);
+    TopoDS_Edge ellipseEdge = BRepBuilderAPI_MakeEdge(gp_Elips(axis, 3.0, 2.0));
+    TopoDS_Wire ellipseWire = BRepBuilderAPI_MakeWire(ellipseEdge);
+    TopoDS_Face ellipseFace = BRepBuilderAPI_MakeFace(gp_Pln(gp::XOY()), ellipseWire);
+    TopoDS_Shape prismEllipse = BRepPrimAPI_MakePrism(ellipseFace, gp_Vec(0.0, 0.0, 5.0));
+    Handle(AIS_Shape) aisPrismEllipse = new AIS_Shape(prismEllipse);
 
     setShapeAttributes(aisPrismVertex, Quantity_NOC_PAPAYAWHIP);
     setShapeAttributes(aisPrismEdge, Quantity_NOC_PEACHPUFF);
@@ -482,34 +485,34 @@ void occWidget::makeRevol()
 
     // revol a vertex, result is an edge.
     axis.SetLocation(gp_Pnt(0.0, 70.0, 0.0));
-    auto vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(2.0, 70.0, 0.0));
-    auto revolVertex = BRepPrimAPI_MakeRevol(vertex, axis);
-    auto aisRevolVertex = new AIS_Shape(revolVertex);
+    TopoDS_Vertex vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(2.0, 70.0, 0.0));
+    TopoDS_Shape revolVertex = BRepPrimAPI_MakeRevol(vertex, axis);
+    Handle(AIS_Shape) aisRevolVertex = new AIS_Shape(revolVertex);
 
     // revol an edge, result is a face.
     axis.SetLocation(gp_Pnt(8.0, 70.0, 0.0));
-    auto edge = BRepBuilderAPI_MakeEdge(gp_Pnt(6.0, 70.0, 0.0), gp_Pnt(6.0, 70.0, 5.0));
-    auto revolEdge = BRepPrimAPI_MakeRevol(edge, axis);
-    auto aisRevolEdge = new AIS_Shape(revolEdge);
+    TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(gp_Pnt(6.0, 70.0, 0.0), gp_Pnt(6.0, 70.0, 5.0));
+    TopoDS_Shape revolEdge = BRepPrimAPI_MakeRevol(edge, axis);
+    Handle(AIS_Shape) aisRevolEdge = new AIS_Shape(revolEdge);
 
     // revol a wire, result is a shell.
     axis.SetLocation(gp_Pnt(20.0, 70.0, 0.0));
     axis.SetDirection(gp::DY());
 
-    auto circleEdge = BRepBuilderAPI_MakeEdge(gp_Circ(gp_Ax2(gp_Pnt(15.0, 70.0, 0.0), gp::DZ()), 1.5));
-    auto circleWire = BRepBuilderAPI_MakeWire(circleEdge);
-    auto revolCircle = BRepPrimAPI_MakeRevol(circleWire, axis, M_PI_2);
-    auto aisRevolCircle = new AIS_Shape(revolCircle);
+    TopoDS_Edge circleEdge = BRepBuilderAPI_MakeEdge(gp_Circ(gp_Ax2(gp_Pnt(15.0, 70.0, 0.0), gp::DZ()), 1.5));
+    TopoDS_Wire circleWire = BRepBuilderAPI_MakeWire(circleEdge);
+    TopoDS_Shape revolCircle = BRepPrimAPI_MakeRevol(circleWire, axis, M_PI_2);
+    Handle(AIS_Shape) aisRevolCircle = new AIS_Shape(revolCircle);
 
     // revol a face, result is a solid.
     axis.SetLocation(gp_Pnt(30.0, 70.0, 0.0));
     axis.SetDirection(gp::DY());
 
-    auto ellipseEdge = BRepBuilderAPI_MakeEdge(gp_Elips(gp_Ax2(gp_Pnt(25.0, 70.0, 0.0), gp::DZ()), 3.0, 2.0));
-    auto ellipseWire = BRepBuilderAPI_MakeWire(ellipseEdge);
-    auto ellipseFace = BRepBuilderAPI_MakeFace(gp_Pln(gp::XOY()), ellipseWire);
-    auto revolEllipse = BRepPrimAPI_MakeRevol(ellipseFace, axis, M_PI_4);
-    auto aisRevolEllipse = new AIS_Shape(revolEllipse);
+    TopoDS_Edge ellipseEdge = BRepBuilderAPI_MakeEdge(gp_Elips(gp_Ax2(gp_Pnt(25.0, 70.0, 0.0), gp::DZ()), 3.0, 2.0));
+    TopoDS_Wire ellipseWire = BRepBuilderAPI_MakeWire(ellipseEdge);
+    TopoDS_Face ellipseFace = BRepBuilderAPI_MakeFace(gp_Pln(gp::XOY()), ellipseWire);
+    TopoDS_Shape revolEllipse = BRepPrimAPI_MakeRevol(ellipseFace, axis, M_PI_4);
+    Handle(AIS_Shape) aisRevolEllipse = new AIS_Shape(revolEllipse);
 
     setShapeAttributes(aisRevolVertex, Quantity_NOC_LIMEGREEN);
     setShapeAttributes(aisRevolEdge, Quantity_NOC_LINEN);
@@ -527,12 +530,12 @@ void occWidget::makeRevol()
 void occWidget::makeLoft()
 {
     // bottom wire.
-    auto circleEdge = BRepBuilderAPI_MakeEdge(
+    TopoDS_Edge circleEdge = BRepBuilderAPI_MakeEdge(
                 gp_Circ(
                     gp_Ax2(gp_Pnt(0.0, 80.0, 0.0), gp::DZ()),
                     1.5)
                 );
-    auto circleWire = BRepBuilderAPI_MakeWire(circleEdge);
+    TopoDS_Wire circleWire = BRepBuilderAPI_MakeWire(circleEdge);
 
     // top wire.
     BRepBuilderAPI_MakePolygon polygon;
@@ -556,8 +559,8 @@ void occWidget::makeLoft()
     aTrsf.SetTranslation(gp_Vec(18.0, 0.0, 0.0));
     BRepBuilderAPI_Transform transform(solidGenerator.Shape(), aTrsf);
 
-    auto aisShell = new AIS_Shape(shellGenerator.Shape());
-    auto aisSolid = new AIS_Shape(transform.Shape());
+    Handle(AIS_Shape) aisShell = new AIS_Shape(shellGenerator.Shape());
+    Handle(AIS_Shape) aisSolid = new AIS_Shape(transform.Shape());
 
     setShapeAttributes(aisShell, Quantity_NOC_OLIVEDRAB);
     setShapeAttributes(aisSolid, Quantity_NOC_PEACHPUFF);
@@ -573,10 +576,10 @@ void occWidget::boolCut()
     gp_Ax2 axis;
     axis.SetLocation(gp_Pnt(0.0, 90.0, 0.0));
 
-    auto topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
-    auto topoSphere = BRepPrimAPI_MakeSphere(axis, 2.5).Shape();
-    auto cutShape1 = BRepAlgoAPI_Cut(topoBox, topoSphere);
-    auto cutShape2 = BRepAlgoAPI_Cut(topoSphere, topoBox);
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    TopoDS_Shape topoSphere = BRepPrimAPI_MakeSphere(axis, 2.5).Shape();
+    TopoDS_Shape cutShape1 = BRepAlgoAPI_Cut(topoBox, topoSphere);
+    TopoDS_Shape cutShape2 = BRepAlgoAPI_Cut(topoSphere, topoBox);
 
     gp_Trsf aTrsf;
     aTrsf.SetTranslation(gp_Vec(8.0, 0.0, 0.0));
@@ -585,10 +588,10 @@ void occWidget::boolCut()
     aTrsf.SetTranslation(gp_Vec(16.0, 0.0, 0.0));
     BRepBuilderAPI_Transform transform2(cutShape2, aTrsf);
 
-    auto aisBox = new AIS_Shape(topoBox);
-    auto aisSphere = new AIS_Shape(topoSphere);
-    auto aisCutShape1 = new AIS_Shape(transform1.Shape());
-    auto aisCutShape2 = new AIS_Shape(transform2.Shape());
+    Handle(AIS_Shape) aisBox = new AIS_Shape(topoBox);
+    Handle(AIS_Shape) aisSphere = new AIS_Shape(topoSphere);
+    Handle(AIS_Shape) aisCutShape1 = new AIS_Shape(transform1.Shape());
+    Handle(AIS_Shape) aisCutShape2 = new AIS_Shape(transform2.Shape());
 
     setShapeAttributes(aisBox, Quantity_NOC_SPRINGGREEN);
     setShapeAttributes(aisSphere, Quantity_NOC_STEELBLUE);
@@ -603,15 +606,218 @@ void occWidget::boolCut()
 }
 
 
-void occWidget::setShapeAttributes(AIS_Shape *shape, const Quantity_Color color)
+void occWidget::boolFuse()
 {
-    shape->SetColor(color);
-    auto attrib = shape->Attributes();
-    auto line = attrib->FaceBoundaryAspect();
-    line->SetColor(Quantity_NOC_BLACK);
-    line->SetWidth(2.0);
-    attrib->SetFaceBoundaryDraw(Standard_True);
-    attrib->SetFaceBoundaryAspect(line);
-    shape->SetAttributes(attrib);
+    gp_Ax2 axis;
+    axis.SetLocation(gp_Pnt(0.0, 100.0, 0.0));
+
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    TopoDS_Shape topoSphere = BRepPrimAPI_MakeSphere(axis, 2.5).Shape();
+    TopoDS_Shape fusedShape = BRepAlgoAPI_Fuse(topoBox, topoSphere);
+
+    gp_Trsf trsf;
+    trsf.SetTranslation(gp_Vec(8.0, 0.0, 0.0));
+    BRepBuilderAPI_Transform transform(fusedShape, trsf);
+
+    Handle(AIS_Shape) aisBox = new AIS_Shape(topoBox);
+    Handle(AIS_Shape) aisSphere = new AIS_Shape(topoSphere);
+    Handle(AIS_Shape) aisFusedShape = new AIS_Shape(transform.Shape());
+
+    setShapeAttributes(aisBox, Quantity_NOC_SPRINGGREEN);
+    setShapeAttributes(aisSphere, Quantity_NOC_STEELBLUE);
+    setShapeAttributes(aisFusedShape, Quantity_NOC_ROSYBROWN);
+
+    _occView->getContext()->Display(aisBox, Standard_True);
+    _occView->getContext()->Display(aisSphere, Standard_True);
+    _occView->getContext()->Display(aisFusedShape, Standard_True);
+    _occView->fitAll();
 }
 
+
+void occWidget::boolCommon()
+{
+    gp_Ax2 axis;
+    axis.SetLocation(gp_Pnt(0.0, 110.0, 0.0));
+
+    TopoDS_Shape topoBox = BRepPrimAPI_MakeBox(axis, 3.0, 4.0, 5.0).Shape();
+    TopoDS_Shape topoSphere = BRepPrimAPI_MakeSphere(axis, 2.5).Shape();
+    TopoDS_Shape commonShape = BRepAlgoAPI_Common(topoBox, topoSphere);
+
+    gp_Trsf trsf;
+    trsf.SetTranslation(gp_Vec(8.0, 0.0, 0.0));
+    BRepBuilderAPI_Transform transform(commonShape, trsf);
+
+    Handle(AIS_Shape) aisBox = new AIS_Shape(topoBox);
+    Handle(AIS_Shape) aisSphere = new AIS_Shape(topoSphere);
+    Handle(AIS_Shape) aisCommonShape = new AIS_Shape(transform.Shape());
+
+    setShapeAttributes(aisBox, Quantity_NOC_SPRINGGREEN);
+    setShapeAttributes(aisSphere, Quantity_NOC_STEELBLUE);
+    setShapeAttributes(aisCommonShape, Quantity_NOC_ROYALBLUE);
+
+    _occView->getContext()->Display(aisBox, Standard_True);
+    _occView->getContext()->Display(aisSphere, Standard_True);
+    _occView->getContext()->Display(aisCommonShape, Standard_True);
+    _occView->fitAll();
+}
+
+void occWidget::testHelix()
+{
+    makeCylindricalHelix();
+    makeConicalHelix();
+    makeToroidalHelix();
+}
+
+void occWidget::makeCylindricalHelix()
+{
+    Standard_Real radius = 3.0;
+    Standard_Real pitch = 1.0;
+
+    // the pcurve is a 2d line in the parametric space.
+    gp_Lin2d line2d(gp_Pnt2d(0.0, 0.0), gp_Dir2d(radius, pitch));
+
+    Handle(Geom2d_TrimmedCurve) segment = GCE2d_MakeSegment(line2d, 0.0, M_PI * 2.0).Value();
+
+    Handle(Geom_CylindricalSurface) cylinder = new Geom_CylindricalSurface(gp::XOY(), radius);
+
+    TopoDS_Edge helixEdge = BRepBuilderAPI_MakeEdge(segment, cylinder, 0.0, 6.0 * M_PI).Edge();
+
+    gp_Trsf trsf;
+    trsf.SetTranslation(gp_Vec(0.0, 120.0, 0.0));
+    BRepBuilderAPI_Transform transform(helixEdge, trsf);
+
+    Handle(AIS_Shape) aisHelixCurve = new AIS_Shape(transform.Shape());
+
+    _occView->getContext()->Display(aisHelixCurve, Standard_True);
+
+    // sweep a circle profile along the helix curve.
+    // there is no curve3d in the pcurve edge, so approx one.
+    BRepLib::BuildCurve3d(helixEdge);
+
+    gp_Ax2 axis;
+    axis.SetDirection(gp_Dir(0.0, 4.0, 1.0));
+    axis.SetLocation(gp_Pnt(radius, 0.0, 0.0));
+
+    gp_Circ profileCircle(axis, 0.3);
+
+    TopoDS_Edge profileEdge = BRepBuilderAPI_MakeEdge(profileCircle).Edge();
+    TopoDS_Wire profileWire = BRepBuilderAPI_MakeWire(profileEdge).Wire();
+    TopoDS_Face profileFace = BRepBuilderAPI_MakeFace(profileWire).Face();
+
+    TopoDS_Wire helixWire = BRepBuilderAPI_MakeWire(helixEdge).Wire();
+
+    BRepOffsetAPI_MakePipe pipeMaker(helixWire, profileFace);
+
+    if (pipeMaker.IsDone())
+    {
+        trsf.SetTranslation(gp_Vec(8.0, 120.0, 0.0));
+        BRepBuilderAPI_Transform pipeTransform(pipeMaker.Shape(), trsf);
+
+        Handle(AIS_Shape) aisPipe = new AIS_Shape(pipeTransform.Shape());
+        setShapeAttributes(aisPipe, Quantity_NOC_CORAL);
+        _occView->getContext()->Display(aisPipe, Standard_True);
+        _occView->fitAll();
+    }
+}
+
+
+void occWidget::makeConicalHelix()
+{
+    Standard_Real radius = 3.0;
+    Standard_Real pitch = 1.0;
+
+    // the pcurve is a 2d line in the parametric space.
+    gp_Lin2d line2d(gp_Pnt2d(0.0, 0.0), gp_Dir2d(radius, pitch));
+    Handle(Geom2d_TrimmedCurve) segment = GCE2d_MakeSegment(line2d, 0.0, M_PI * 2.0).Value();
+    Handle(Geom_ConicalSurface) cylinder = new Geom_ConicalSurface(gp::XOY(), M_PI / 6.0, radius);
+
+    TopoDS_Edge helixEdge = BRepBuilderAPI_MakeEdge(segment, cylinder, 0.0, 6.0 * M_PI).Edge();
+
+    gp_Trsf trsf;
+    trsf.SetTranslation(gp_Vec(18.0, 120.0, 0.0));
+    BRepBuilderAPI_Transform transform(helixEdge, trsf);
+
+    Handle(AIS_Shape) aisHelixCurve = new AIS_Shape(transform.Shape());
+
+    _occView->getContext()->Display(aisHelixCurve, Standard_True);
+
+    // sweep a circle profile along the helix curve.
+    // there is no curve3d in the pcurve edge, so approx one.
+    BRepLib::BuildCurve3d(helixEdge);
+
+    gp_Ax2 axis;
+    axis.SetDirection(gp_Dir(0.0, 4.0, 1.0));
+    axis.SetLocation(gp_Pnt(radius, 0.0, 0.0));
+
+    gp_Circ profileCircle(axis, 0.3);
+
+    TopoDS_Edge profileEdge = BRepBuilderAPI_MakeEdge(profileCircle).Edge();
+    TopoDS_Wire profileWire = BRepBuilderAPI_MakeWire(profileEdge).Wire();
+    TopoDS_Face profileFace = BRepBuilderAPI_MakeFace(profileWire).Face();
+
+    TopoDS_Wire helixWire = BRepBuilderAPI_MakeWire(helixEdge).Wire();
+
+    BRepOffsetAPI_MakePipe pipeMaker(helixWire, profileFace);
+
+    if (pipeMaker.IsDone())
+    {
+        trsf.SetTranslation(gp_Vec(28.0, 120.0, 0.0));
+        BRepBuilderAPI_Transform pipeTransform(pipeMaker.Shape(), trsf);
+
+        Handle(AIS_Shape) aisPipe = new AIS_Shape(pipeTransform.Shape());
+        setShapeAttributes(aisPipe, Quantity_NOC_DARKGOLDENROD);
+        _occView->getContext()->Display(aisPipe, Standard_True);
+        _occView->fitAll();
+    }
+}
+
+
+void occWidget::makeToroidalHelix()
+{
+    Standard_Real radius = 1.0;
+    Standard_Real slope = 0.05;
+
+    // the pcurve is a 2d line in the parametric space.
+    gp_Lin2d line2d(gp_Pnt2d(0.0, 0.0), gp_Dir2d(slope, 1.0));
+    Handle(Geom2d_TrimmedCurve) segment = GCE2d_MakeSegment(line2d, 0.0, M_PI * 2.0).Value();
+    Handle(Geom_ToroidalSurface) cylinder = new Geom_ToroidalSurface(gp::XOY(), radius * 5.0, radius);
+
+    TopoDS_Edge helixEdge = BRepBuilderAPI_MakeEdge(segment, cylinder, 0.0, 2.0 * M_PI / slope).Edge();
+
+    gp_Trsf trsf;
+    trsf.SetTranslation(gp_Vec(45.0, 120.0, 0.0));
+    BRepBuilderAPI_Transform transform(helixEdge, trsf);
+
+    Handle(AIS_Shape) aisHelixCurve = new AIS_Shape(transform.Shape());
+
+    _occView->getContext()->Display(aisHelixCurve, Standard_True);
+
+    // sweep a circle profile along the helix curve.
+    // there is no curve3d in the pcurve edge, so approx one.
+    BRepLib::BuildCurve3d(helixEdge);
+
+    gp_Ax2 axis;
+    axis.SetDirection(gp_Dir(0.0, 0.0, 1.0));
+    axis.SetLocation(gp_Pnt(radius * 6.0, 0.0, 0.0));
+
+    gp_Circ profileCircle(axis, 0.3);
+
+    TopoDS_Edge profileEdge = BRepBuilderAPI_MakeEdge(profileCircle).Edge();
+    TopoDS_Wire profileWire = BRepBuilderAPI_MakeWire(profileEdge).Wire();
+    TopoDS_Face profileFace = BRepBuilderAPI_MakeFace(profileWire).Face();
+
+    TopoDS_Wire helixWire = BRepBuilderAPI_MakeWire(helixEdge).Wire();
+
+    BRepOffsetAPI_MakePipe pipeMaker(helixWire, profileFace);
+
+    if (pipeMaker.IsDone())
+    {
+        trsf.SetTranslation(gp_Vec(60.0, 120.0, 0.0));
+        BRepBuilderAPI_Transform pipeTransform(pipeMaker.Shape(), trsf);
+
+        Handle(AIS_Shape) aisPipe = new AIS_Shape(pipeTransform.Shape());
+        setShapeAttributes(aisPipe, Quantity_NOC_CORNSILK1);
+        _occView->getContext()->Display(aisPipe, Standard_True);
+        _occView->fitAll();
+    }
+}

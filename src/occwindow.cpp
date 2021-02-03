@@ -52,9 +52,9 @@ void occWindow::Destroy()
 
 Aspect_Drawable occWindow::NativeParentHandle() const
 {
-    QWidget* aParentWidget = _myWidget->parentWidget();
-    if (aParentWidget)
-      return (Aspect_Drawable)aParentWidget->winId();
+    auto parentWidget = _myWidget->parentWidget();
+    if (parentWidget)
+      return (Aspect_Drawable)parentWidget->winId();
     else
       return 0;
 }
@@ -90,7 +90,6 @@ Aspect_TypeOfResize occWindow::DoResize()
 {
     int aMask {0};
     auto aMode = Aspect_TOR_UNKNOWN;
-    const auto _devPx = _myWidget->devicePixelRatioF();
 
     if (!_myWidget->isMinimized()) {
         if ( Abs(_devPx * _myWidget->rect().left()   - _xLeft   ) > 2 ) aMask |= 1;
@@ -148,8 +147,6 @@ Standard_Real occWindow::Ratio() const
 
 void occWindow::Size(Standard_Integer &theWidth, Standard_Integer &theHeight) const
 {
-    const auto _devPx = _myWidget->devicePixelRatioF();
-
     theWidth = _devPx * _myWidget->rect().right();
     theHeight = _devPx * _myWidget->rect().bottom();
 }
@@ -160,8 +157,6 @@ void occWindow::Position(Standard_Integer &theX1,
                           Standard_Integer &theX2,
                           Standard_Integer &theY2) const
 {
-    auto _devPx = _myWidget->devicePixelRatioF();
-
     theX1 = _devPx * _myWidget->rect().left();
     theX2 = _devPx * _myWidget->rect().right();
     theY1 = _devPx * _myWidget->rect().top();

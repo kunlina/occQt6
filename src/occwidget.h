@@ -53,7 +53,12 @@ private:
     QToolBar* _toolBar;
 
     void about();
+    QAction* addActionToToolBar(QString iconText,
+                                QString iconFileName,
+                                QString toolTipText,
+                                bool addToToolBar);
     void populateToolBar();
+    void setShapeAttributes(Handle(AIS_Shape) shape, Quantity_Color color);
 
     void addBox();
     void addCone();
@@ -68,20 +73,15 @@ private:
     void makeRevol();
     void makeLoft();
 
-    // test boolean operation cut.
     void boolCut();
+    void boolFuse();
+    void boolCommon();
 
-//    //! test boolean operation fuse.
-//    void testFuse(void);
+    void testHelix();
+    void makeCylindricalHelix();
+    void makeConicalHelix();
+    void makeToroidalHelix();
 
-//    //! test boolean operation common.
-//    void testCommon(void);
-
-//    //! test helix shapes.
-//    void testHelix(void);
-
-
-    void setShapeAttributes(AIS_Shape* shape, const Quantity_Color color);
-
+    const QString _iconColor {"#778ca3"}; //blue grey
 };
 #endif // OCCTWIDGET_H

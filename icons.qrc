@@ -23,5 +23,8 @@
         <file>icons/lucide/triangle.svg</file>
         <file>icons/lucide/type.svg</file>
         <file>icons/lucide/zoom-in.svg</file>
+        <file>icons/boolFuse.svg</file>
+        <file>icons/boolCommon.svg</file>
+        <file>icons/helix.svg</file>
     </qresource>
 </RCC>

@@ -115,7 +115,7 @@ occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
     this->setAttribute(Qt::WA_NoSystemBackground);
 
     _mouseDefaultGestures = myMouseGestureMap;
-    _curMode = curAction3d_Nothing;
+    _curMode = curAction3d::Nothing;
 
     initViewActions();
     initCursors();
@@ -322,15 +322,15 @@ void occView::updateToggled(bool isOn)
     if( !isOn )
         return;
 
-    for (int i = viewFitAllId; i < viewHlrOffId; i++ )
+    for (int i = viewFitAll; i < viewHlrOff; i++ )
     {
         QAction* action = _viewActions->at(i);
 
-        if ( ( action == _viewActions->at( viewFitAreaId ) ) ||
-             ( action == _viewActions->at( viewZoomId ) ) ||
-             ( action == _viewActions->at( viewPanId ) ) ||
-             ( action == _viewActions->at( viewGlobalPanId ) ) ||
-             ( action == _viewActions->at( viewRotationId ) ) )
+        if ( ( action == _viewActions->at( viewFitArea ) ) ||
+             ( action == _viewActions->at( viewZoom ) ) ||
+             ( action == _viewActions->at( viewPan ) ) ||
+             ( action == _viewActions->at( viewGlobalPan ) ) ||
+             ( action == _viewActions->at( viewRotation ) ) )
         {
             if ( action && ( action != sentBy ) )
             {
@@ -339,15 +339,15 @@ void occView::updateToggled(bool isOn)
             }
             else
             {
-                if (sentBy == _viewActions->at(viewFitAreaId))
+                if (sentBy == _viewActions->at(viewFitArea))
                     setCursor( *handCursor );
-                else if ( sentBy == _viewActions->at(viewZoomId) )
+                else if ( sentBy == _viewActions->at(viewZoom) )
                     setCursor( *zoomCursor );
-                else if ( sentBy == _viewActions->at(viewPanId) )
+                else if ( sentBy == _viewActions->at(viewPan) )
                     setCursor( *panCursor );
-                else if ( sentBy == _viewActions->at(viewGlobalPanId) )
+                else if ( sentBy == _viewActions->at(viewGlobalPan) )
                     setCursor( *globPanCursor );
-                else if ( sentBy == _viewActions->at(viewRotationId) )
+                else if ( sentBy == _viewActions->at(viewRotation) )
                     setCursor( *rotCursor );
                 else
                     setCursor( *defCursor );
@@ -400,7 +400,7 @@ void occView::initViewActions()
     a->setToolTip(QObject::tr("TBR_FITALL"));
     a->setStatusTip(QObject::tr("TBR_FITALL"));
     connect(a, &QAction::triggered, this, &occView::fitAll);
-    _viewActions->insert(viewFitAllId, a);
+    _viewActions->insert(viewFitAll, a);
 
     a = new QAction(QObject::tr("MNU_FITAREA"), this );
     a->setToolTip(QObject::tr("TBR_FITAREA"));
@@ -409,7 +409,7 @@ void occView::initViewActions()
 
     a->setCheckable(true);
     connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewFitAreaId, a);
+    _viewActions->insert(viewFitArea, a);
 
     a = new QAction(QObject::tr("MNU_ZOOM"), this );
     a->setToolTip( QObject::tr("TBR_ZOOM") );
@@ -418,7 +418,7 @@ void occView::initViewActions()
 
     a->setCheckable(true);
     connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewZoomId, a );
+    _viewActions->insert(viewZoom, a );
 
     a = new QAction(QObject::tr("MNU_PAN"), this );
     a->setToolTip( QObject::tr("TBR_PAN") );
@@ -427,7 +427,7 @@ void occView::initViewActions()
 
     a->setCheckable(true);
     connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewPanId, a );
+    _viewActions->insert(viewPan, a );
 
     a = new QAction(QObject::tr("MNU_GLOBALPAN"), this );
     a->setToolTip( QObject::tr("TBR_GLOBALPAN") );
@@ -436,49 +436,49 @@ void occView::initViewActions()
 
     a->setCheckable(true);
     connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewGlobalPanId, a );
+    _viewActions->insert(viewGlobalPan, a );
 
     a = new QAction(QObject::tr("MNU_FRONT"), this );
     a->setToolTip( QObject::tr("TBR_FRONT") );
     a->setStatusTip( QObject::tr("TBR_FRONT") );
     connect(a, &QAction::triggered, this, &occView::front);
-    _viewActions->insert(viewFrontId, a );
+    _viewActions->insert(viewFront, a );
 
     a = new QAction(QObject::tr("MNU_BACK"), this );
     a->setToolTip( QObject::tr("TBR_BACK") );
     a->setStatusTip( QObject::tr("TBR_BACK") );
     connect(a, &QAction::triggered, this, &occView::back);
-    _viewActions->insert(viewBackId, a);
+    _viewActions->insert(viewBack, a);
 
     a = new QAction(QObject::tr("MNU_TOP"), this );
     a->setToolTip( QObject::tr("TBR_TOP") );
     a->setStatusTip( QObject::tr("TBR_TOP") );
     connect(a, &QAction::triggered, this, &occView::top);
-    _viewActions->insert(viewTopId, a );
+    _viewActions->insert(viewTop, a );
 
     a = new QAction(QObject::tr("MNU_BOTTOM"), this );
     a->setToolTip( QObject::tr("TBR_BOTTOM") );
     a->setStatusTip( QObject::tr("TBR_BOTTOM") );
     connect(a, &QAction::triggered, this, &occView::bottom);
-    _viewActions->insert(viewBottomId, a );
+    _viewActions->insert(viewBottom, a );
 
     a = new QAction(QObject::tr("MNU_LEFT"), this );
     a->setToolTip( QObject::tr("TBR_LEFT") );
     a->setStatusTip( QObject::tr("TBR_LEFT") );
     connect(a, &QAction::triggered, this, &occView::left);
-    _viewActions->insert(viewLeftId, a );
+    _viewActions->insert(viewLeft, a );
 
     a = new QAction(QObject::tr("MNU_RIGHT"), this );
     a->setToolTip( QObject::tr("TBR_RIGHT") );
     a->setStatusTip( QObject::tr("TBR_RIGHT") );
     connect(a, &QAction::triggered, this, &occView::right);
-    _viewActions->insert(viewRightId, a );
+    _viewActions->insert(viewRight, a );
 
     a = new QAction(QObject::tr("MNU_AXO"), this );
     a->setToolTip( QObject::tr("TBR_AXO") );
     a->setStatusTip( QObject::tr("TBR_AXO") );
     connect(a, &QAction::triggered, this, &occView::axo);
-    _viewActions->insert(viewAxoId, a );
+    _viewActions->insert(viewAxo, a );
 
     a = new QAction(QObject::tr("MNU_ROTATION"), this );
     a->setToolTip( QObject::tr("TBR_ROTATION") );
@@ -486,13 +486,13 @@ void occView::initViewActions()
     connect(a, &QAction::triggered, this, &occView::rotation);
     a->setCheckable( true );
     connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewRotationId, a );
+    _viewActions->insert(viewRotation, a );
 
     a = new QAction(QObject::tr("MNU_RESET"), this );
     a->setToolTip( QObject::tr("TBR_RESET") );
     a->setStatusTip( QObject::tr("TBR_RESET") );
     connect(a, &QAction::triggered, this, &occView::reset);
-    _viewActions->insert(viewResetId, a );
+    _viewActions->insert(viewReset, a );
 
     QActionGroup* ag = new QActionGroup(this);
 
@@ -502,7 +502,7 @@ void occView::initViewActions()
     connect(a, &QAction::triggered, this, &occView::hlrOff);
     a->setCheckable( true );
     ag->addAction(a);
-    _viewActions->insert(viewHlrOffId, a);
+    _viewActions->insert(viewHlrOff, a);
 
     a = new QAction(QObject::tr("MNU_HLRON"), this );
     a->setToolTip( QObject::tr("TBR_HLRON") );
@@ -511,7 +511,7 @@ void occView::initViewActions()
 
     a->setCheckable( true );
     ag->addAction(a);
-    _viewActions->insert(viewHlrOnId, a );
+    _viewActions->insert(viewHlrOn, a );
 }
 
 
@@ -561,22 +561,22 @@ void occView::activateCursor(const curAction3d mode)
 {
     switch( mode )
     {
-    case curAction3d_DynamicPanning:
+    case curAction3d::DynamicPanning:
         setCursor( *panCursor );
         break;
-    case curAction3d_DynamicZooming:
+    case curAction3d::DynamicZooming:
         setCursor( *zoomCursor );
         break;
-    case curAction3d_DynamicRotation:
+    case curAction3d::DynamicRotation:
         setCursor( *rotCursor );
         break;
-    case curAction3d_GlobalPanning:
+    case curAction3d::GlobalPanning:
         setCursor( *globPanCursor );
         break;
-    case curAction3d_WindowZooming:
+    case curAction3d::WindowZooming:
         setCursor( *handCursor );
         break;
-    case curAction3d_Nothing:
+    case curAction3d::Nothing:
     default:
         setCursor( *defCursor );
         break;
@@ -605,7 +605,7 @@ void occView::mouseReleaseEvent(QMouseEvent* event)
         updateView();
 
 
-    if (_curMode == curAction3d_GlobalPanning)
+    if (_curMode == curAction3d::GlobalPanning)
         _view->Place(point.x(), point.y(), _curZoom);
 
     //if (_curMode != curAction3d_Nothing)
@@ -654,25 +654,25 @@ void occView::defineMouseGestures()
     activateCursor(_curMode);
     switch (_curMode)
     {
-    case curAction3d_Nothing:
+    case curAction3d::Nothing:
         noActiveActions();
         myMouseGestureMap = _mouseDefaultGestures;
         break;
-    case curAction3d_DynamicZooming:
+    case curAction3d::DynamicZooming:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_Zoom);
         break;
-    case curAction3d_GlobalPanning:
+    case curAction3d::GlobalPanning:
         break;
-    case curAction3d_WindowZooming:
+    case curAction3d::WindowZooming:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_ZoomWindow);
         break;
-    case curAction3d_DynamicPanning:
+    case curAction3d::DynamicPanning:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_Pan);
         break;
-    case curAction3d_DynamicRotation:
+    case curAction3d::DynamicRotation:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, aRot);
         break;
-    case curAction3d_Selecting:
+    case curAction3d::Selecting:
         myMouseGestureMap.Bind(Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_SelectRectangle);
         break;
     }
@@ -754,14 +754,14 @@ void occView::addItemInPopup(QMenu* /* menu */)
 
 void occView::noActiveActions()
 {
-    for (int i = viewFitAllId; i < viewHlrOffId ; i++ )
+    for (int i = viewFitAll; i < viewHlrOff ; i++ )
     {
         QAction* anAction = _viewActions->at(i);
-        if( ( anAction == _viewActions->at(viewFitAreaId) ) ||
-                ( anAction == _viewActions->at(viewZoomId) ) ||
-                ( anAction == _viewActions->at(viewPanId) ) ||
-                ( anAction == _viewActions->at(viewGlobalPanId) ) ||
-                ( anAction == _viewActions->at(viewRotationId) ) )
+        if( ( anAction == _viewActions->at(viewFitArea) ) ||
+                ( anAction == _viewActions->at(viewZoom) ) ||
+                ( anAction == _viewActions->at(viewPan) ) ||
+                ( anAction == _viewActions->at(viewGlobalPan) ) ||
+                ( anAction == _viewActions->at(viewRotation) ) )
         {
             setCursor( *defCursor );
             anAction->setCheckable( true );
@@ -815,327 +815,3 @@ bool occView::dump(Standard_CString file)
 {
     return _view->Dump(file);
 }
-
-
-
-//void occView::mousePressEvent( QMouseEvent* event )
-//{
-//    switch (event->button()) {
-//    case Qt::LeftButton:
-//        onLButtonDown((event->buttons() | event->modifiers()), event->pos());
-//        break;
-//    case Qt::MiddleButton:
-//        onMButtonDown((event->buttons() | event->modifiers()), event->pos());
-//        break;
-//    case Qt::RightButton:
-//        onRButtonDown((event->buttons() | event->modifiers()), event->pos());
-//        break;
-//    default:
-//        return;
-//    }
-//    event->accept();
-//}
-
-//void occView::mouseReleaseEvent( QMouseEvent* event )
-//{
-//    switch (event->button()) {
-//    case Qt::LeftButton:
-//        onLButtonUp(event->buttons() | event->modifiers(), event->pos());
-//        break;
-//    case Qt::MiddleButton:
-//        onMButtonUp(event->buttons() | event->modifiers(), event->pos());
-//        break;
-//    case Qt::RightButton:
-//        onRButtonUp(event->buttons() | event->modifiers(), event->pos());
-//        break;
-//    default:
-//        return;
-//    }
-//    event->accept();
-//}
-
-//void occView::mouseMoveEvent( QMouseEvent* event )
-//{
-//    onMouseMove(event, event->pos());
-//    event->accept();
-//}
-
-//void occView::wheelEvent( QWheelEvent* event )
-//{
-
-//    QPoint numPixels = event->pixelDelta();
-//    QPoint numDegrees = event->angleDelta() / 8;
-
-//    if (!numPixels.isNull())
-//        onMouseWheel(event->buttons(), event->position(), numPixels);
-//    else if (!numDegrees.isNull()) {
-//        QPoint numSteps = numDegrees / 15;
-//        onMouseWheel(event->buttons(), event->position(), numSteps);
-//    }
-//    event->accept();
-//}
-
-
-//// ------------------------------------------------------------------------------------------------
-//// private functions
-//// ------------------------------------------------------------------------------------------------
-//void occView::dragEvent(int x, int y)
-//{
-//    // correct coordinates for devicePixelRatio
-//    auto devPx = this->devicePixelRatioF();
-//    const Standard_Integer xMin = devPx * _mouseXmin;
-//    const Standard_Integer yMin = devPx * _mouseYmin;
-//    x *= devPx;
-//    y *= devPx;
-
-//    _context->Select(xMin, yMin, x, y, _view, Standard_True);
-//    emit selectionChanged();
-//}
-
-
-//void occView::drawRubberBand(int minX, int minY, int maxX, int maxY)
-//{
-//    QRect aRect;
-
-//    // Set the rectangle correctly.
-//    (minX < maxX) ? (aRect.setX(minX)) : (aRect.setX(maxX));
-//    (minY < maxY) ? (aRect.setY(minY)) : (aRect.setY(maxY));
-
-//    aRect.setWidth(abs(maxX - minX));
-//    aRect.setHeight(abs(maxY - minY));
-
-//    if (!_rectBand)
-//    {
-//        _rectBand = new QRubberBand(QRubberBand::Rectangle, this);
-
-//        // setStyle is important, set to windows style will just draw
-//        // rectangle frame, otherwise will draw a solid rectangle.
-//        _rectBand->setStyle(QStyleFactory::create("windows"));
-//    }
-
-//    if (_rectBand) {
-//        _rectBand->setGeometry(aRect);
-//        _rectBand->show();
-//    }
-//}
-
-
-//void occView::init()
-//{
-
-//    Handle_Aspect_DisplayConnection aDisplayConnection;
-//    Handle_OpenGl_GraphicDriver aGraphicDriver;
-
-//    // 1. Create a 3D viewer.
-//    aDisplayConnection = new Aspect_DisplayConnection();
-//    aGraphicDriver = new OpenGl_GraphicDriver(aDisplayConnection);
-
-//    _viewer = new V3d_Viewer(aGraphicDriver);
-
-//    // 2. Create an interactive context.
-//    _context = new AIS_InteractiveContext(_viewer);
-//    _context->SetDisplayMode(AIS_Shaded, Standard_True);
-
-//    if ( _view.IsNull() )
-//        _view = _context->CurrentViewer()->CreateView();
-
-//    Handle(occWindow) hWnd = new occWindow( this );
-
-//    _view->SetWindow (hWnd);
-//    if ( !hWnd->IsMapped() )
-//        hWnd->Map();
-
-//    _view->MustBeResized();
-
-//    // Set up lights etc
-//    _viewer->SetDefaultLights();
-//    _viewer->SetLightOn();
-
-//    // set up selection style
-//    auto style = _context->SelectionStyle();
-//    style->SetColor(Quantity_NOC_GREEN);
-//    style->SetDisplayMode(AIS_Shaded);
-//    _context->SetSelectionStyle(style);
-
-//    auto bgcolor = Quantity_Color(.12, .12, .12, Quantity_TOC_sRGB);
-//    _view->SetBackgroundColor(bgcolor);
-//    _view->MustBeResized();
-
-//    // Initialize position, color and length of Triedron axes. The scale is in percent of the window width.
-//    auto trihedronScale = this->devicePixelRatioF() * 0.1;
-//    _view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, trihedronScale, V3d_ZBUFFER);
-
-//    //    if (aGraphicDriver->GetSharedContext()->HasRayTracing()) {
-
-//    //        Graphic3d_RenderingParams& aParams = _view->ChangeRenderingParams();
-//    //        // specifies rendering mode
-//    //        aParams.Method = Graphic3d_RM_RAYTRACING;
-//    //        // maximum ray-tracing depth
-//    //        aParams.RaytracingDepth = 3;
-//    //        // enable shadows rendering
-//    //        aParams.IsShadowEnabled = true;
-//    //        // enable specular reflections
-//    //        aParams.IsReflectionEnabled = true;
-//    //        // enable adaptive anti-aliasing
-//    //        aParams.IsAntialiasingEnabled = true;
-//    //        // enable light propagation through transparent media
-//    //        aParams.IsTransparentShadowEnabled = true;
-//    //        // update the view
-//    //        _view->Update();
-//    //    }
-
-//    // Create a structure in this Viewer
-//    _struct = new Graphic3d_Structure (_viewer->StructureManager());
-
-//}
-
-
-
-//void occView::onLButtonDown(int flags, QPoint point)
-//{
-//    Q_UNUSED(flags)
-//    // Save the current mouse coordinates
-//    _mouseXmin = point.x();
-//    _mouseYmin = point.y();
-//    _mouseXmax = point.x();
-//    _mouseYmax = point.y();
-//}
-
-
-//void occView::onMButtonDown(int flags, QPoint point)
-//{
-//    Q_UNUSED(flags)
-
-//    // Save the current mouse coordinates
-//    _mouseXmin = point.x();
-//    _mouseYmin = point.y();
-//    _mouseXmax = point.x();
-//    _mouseYmax = point.y();
-
-//    if (_mouseMode == mouseActionMode::DynamicRotation)
-//        _view->StartRotation(point.x(), point.y());
-//}
-
-
-//void occView::onRButtonDown(int flags, QPoint point)
-//{
-//    // do nothing
-//    Q_UNUSED(flags)
-//    Q_UNUSED(point)
-//}
-
-
-//void occView::onLButtonUp(int flags, QPoint point)
-//{
-//    // Hide the QRubberBand
-//    if (_rectBand) {
-//        delete _rectBand;
-//        _rectBand = nullptr;
-//    }
-
-//    if (_mouseMode == mouseActionMode::Selecting)
-//        dragEvent(point.x(), point.y());
-
-//    // Ctrl for multi selection.
-//    //    if (point.x() == _mouseXmin && point.y() == _mouseYmin)
-//    //    {
-//    //        if (flags & Qt::ControlModifier)
-//    //        {
-//    //            //multiInputEvent(thePoint.x(), thePoint.y());
-//    //        }
-//    //        else
-//    //        {
-//    //            //inputEvent(thePoint.x(), thePoint.y());
-//    //        }
-//    //    }
-
-//}
-
-//void occView::onMButtonUp(int flags, QPoint point)
-//{
-//    Q_UNUSED(flags)
-//    //    if (thePoint.x() == myXmin && thePoint.y() == myYmin)
-//    //    {
-//    //        panByMiddleButton(thePoint);
-//    //    }
-//}
-
-//void occView::onRButtonUp(int flags, QPoint point)
-//{
-//    Q_UNUSED(flags)
-//    //    popup(thePoint.x(), thePoint.y());
-//}
-
-//void occView::onMouseMove(QMouseEvent *event, QPoint point)
-//{
-//    // Draw the rubber band when left button
-//    //    if ((event->buttons() & Qt::LeftButton) && !(event->modifiers() & Qt::ShiftModifier))
-//    //    {
-//    //        drawRubberBand(_mouseXmin, _mouseYmin, point.x(), point.y());
-//    //        dragEvent(point.x(), point.y());
-//    //    }
-
-//    // Ctrl for multi selection.
-//    //    if (theFlags & Qt::ControlModifier)
-//    //    {
-//    //        multiMoveEvent(thePoint.x(), thePoint.y());
-//    //    }
-//    //    else
-//    //    {
-//    //        moveEvent(thePoint.x(), thePoint.y());
-//    //    }
-
-//    // Left button
-//    if ((event->buttons() & Qt::LeftButton))
-//    {
-//        switch (_mouseMode)
-//        {
-//        case mouseActionMode::DynamicRotation:
-//            _view->Rotation(point.x(), point.y());
-//            break;
-
-//        case mouseActionMode::DynamicZooming:
-//            _view->Zoom(_mouseXmin, _mouseYmin, point.x(), point.y());
-//            break;
-
-//        case mouseActionMode::DynamicPanning:
-//            _view->Pan(point.x() - _mouseXmax, _mouseYmax - point.y());
-//            _mouseXmax = point.x();
-//            _mouseYmax = point.y();
-//            break;
-
-//        case mouseActionMode::Selecting:
-//            drawRubberBand(_mouseXmin, _mouseYmin, point.x(), point.y());
-//            break;
-
-//        default:
-//            break;
-//        }
-//    }
-
-//}
-
-
-//void occView::onMouseWheel(int flags, QPointF point, QPoint delta)
-//{
-//    Q_UNUSED(flags)
-
-//    Standard_Integer aFactor = 16;
-
-//    Standard_Integer aX = point.x();
-//    Standard_Integer aY = point.y();
-
-//    if (delta.y() > 0)
-//    {
-//        aX += aFactor;
-//        aY += aFactor;
-//    }
-//    else
-//    {
-//        aX -= aFactor;
-//        aY -= aFactor;
-//    }
-
-//    _view->Zoom(point.x(), point.y(), aX, aY);
-//}
-

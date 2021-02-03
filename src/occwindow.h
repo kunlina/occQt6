@@ -58,10 +58,10 @@
 class occWindow : public Aspect_Window
 {
     DEFINE_STANDARD_RTTIEXT(occWindow, Aspect_Window)
-public:
+    public:
 
-    // constructor
-    occWindow(QWidget *parent = nullptr);
+        // constructor
+        occWindow(QWidget *parent = nullptr);
 
     virtual void Destroy();
 
@@ -95,7 +95,7 @@ public:
                            Standard_Integer& theY1,
                            Standard_Integer& theX2,
                            Standard_Integer& theY2
-                          ) const override;
+                           ) const override;
 
     // Returns the window RATIO equal to the physical
     // WIDTH/HEIGHT dimensions.
@@ -104,10 +104,6 @@ public:
     virtual void Size(Standard_Integer& theWidth, Standard_Integer& theHeight ) const override;
 
     virtual Aspect_FBConfig NativeFBConfig() const Standard_OVERRIDE { return NULL; }
-
-//  DEFINE_STANDARD_RTTI
-//  IMPLEMENT_STANDARD_RTTIEXT(OcctWindow,Aspect_Window)
-//  IMPLEMENT_STANDARD_RTTIEXT(OcctWindow, Aspect_Window)
 
 protected:
     Standard_Integer _xLeft;

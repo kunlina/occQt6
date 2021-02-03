@@ -13,7 +13,6 @@
 // Qt headers
 #include <Standard_WarningsDisable.hxx>
 #include <QMenu>
-#include <QRubberBand>
 #include <QWidget>
 #include <Standard_WarningsRestore.hxx>
 
@@ -23,39 +22,41 @@
 #include <V3d_View.hxx>
 
 class TopoDS_Shape;
-class QRubberBand;
 
 class occView : public QWidget, protected AIS_ViewController
 {
     Q_OBJECT
-    enum curAction3d { curAction3d_Nothing,
-                       curAction3d_DynamicZooming,
-                       curAction3d_WindowZooming,
-                       curAction3d_DynamicPanning,
-                       curAction3d_GlobalPanning,
-                       curAction3d_DynamicRotation,
-                       curAction3d_Selecting
-                     };
+    enum class curAction3d {
+        Nothing,
+        DynamicZooming,
+        WindowZooming,
+        DynamicPanning,
+        GlobalPanning,
+        DynamicRotation,
+        Selecting
+    };
 
 public:
 
-    enum viewAction { viewFitAllId,
-                      viewFitAreaId,
-                      viewZoomId,
-                      viewPanId,
-                      viewGlobalPanId,
-                      viewFrontId,
-                      viewBackId,
-                      viewTopId,
-                      viewBottomId,
-                      viewLeftId,
-                      viewRightId,
-                      viewAxoId,
-                      viewRotationId,
-                      viewResetId,
-                      viewHlrOffId,
-                      viewHlrOnId
-                    };
+    enum viewAction {
+        viewFitAll,
+        viewFitArea,
+        viewZoom,
+        viewPan,
+        viewGlobalPan,
+        viewFront,
+        viewBack,
+        viewTop,
+        viewBottom,
+        viewLeft,
+        viewRight,
+        viewAxo,
+        viewRotation,
+        viewReset,
+        viewHlrOff,
+        viewHlrOn
+    };
+
 
     enum raytraceAction { toolRaytracingId,
                           toolShadowsId,
@@ -115,27 +116,21 @@ signals:
 
 public slots:
     // operations for the view.
-    //    void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
-    //    void pan()    { _mouseMode = mouseActionMode::DynamicPanning;}
-    //    void select() { _mouseMode = mouseActionMode::Selecting;}
-    //    void reset()  { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
-    //    void rotate() { _mouseMode = mouseActionMode::DynamicRotation;}
-    //    void zoom()   { _mouseMode = mouseActionMode::DynamicZooming;}
-    void orbit() {setCurAction(curAction3d_Nothing);}
-    void select() {setCurAction(curAction3d_Selecting);}
+    void orbit() {setCurAction(curAction3d::Nothing);}
+    void select() {setCurAction(curAction3d::Selecting);}
     void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
-    void fitArea() {setCurAction(curAction3d_WindowZooming);};
-    void zoom() {setCurAction(curAction3d_DynamicZooming);};
-    void pan() {setCurAction(curAction3d_DynamicPanning);};
-    void globalPan() { _curZoom = _view->Scale(); _view->FitAll(); setCurAction(curAction3d_GlobalPanning);}
-    void front() {_view->SetProj(V3d_Yneg);_view->FitAll();};
-    void back() {_view->SetProj(V3d_Ypos);};
-    void top() {_view->SetProj(V3d_Zpos);};
-    void bottom() {_view->SetProj(V3d_Zneg);};
-    void left() {_view->SetProj(V3d_Xneg);};
-    void right() {_view->SetProj(V3d_Xpos);};
-    void axo() {_view->SetProj(V3d_XposYnegZpos);};
-    void rotation() {setCurAction(curAction3d_DynamicRotation);};
+    void fitArea() {setCurAction(curAction3d::WindowZooming);}
+    void zoom() {setCurAction(curAction3d::DynamicZooming);}
+    void pan() {setCurAction(curAction3d::DynamicPanning);}
+    void globalPan() { _curZoom = _view->Scale(); _view->FitAll(); setCurAction(curAction3d::GlobalPanning);}
+    void front() {_view->SetProj(V3d_Yneg);_view->FitAll();}
+    void back() {_view->SetProj(V3d_Ypos);}
+    void top() {_view->SetProj(V3d_Zpos);}
+    void bottom() {_view->SetProj(V3d_Zneg);}
+    void left() {_view->SetProj(V3d_Xneg);}
+    void right() {_view->SetProj(V3d_Xpos);}
+    void axo() {_view->SetProj(V3d_XposYnegZpos); _view->FitAll();}
+    void rotation() {setCurAction(curAction3d::DynamicRotation);}
     void reset() {fitAll();};
 
     void hlrOn();
@@ -214,44 +209,6 @@ private:
     void initCursors();
     void initViewActions();
     void initRaytraceActions();
-
-    //! save the degenerate mode state.
-    //Standard_Boolean _degenerateModeIsOn;
-
-    //! rubber rectangle for the mouse selection.
-    //QRubberBand* _rectBand = nullptr;
-
-//    // mouse action modes
-//    enum mouseActionMode
-//    {
-//        Selecting,
-//        DynamicZooming,
-//        // UNUSED   WindowZooming,
-//        DynamicPanning,
-//        // UNUSED   GlobalPanning,
-//        DynamicRotation
-//    };
-
-//    //mouse current action mode.
-//    mouseActionMode _mouseMode {mouseActionMode::Selecting};
-
-//    // mouse position.
-//    Standard_Integer _mouseXmin;
-//    Standard_Integer _mouseYmin;
-//    Standard_Integer _mouseXmax;
-//    Standard_Integer _mouseYmax;
-
-//    // Button events.
-//    void onLButtonDown(int flags, QPoint point);
-//    void onMButtonDown(int flags, QPoint point);
-//    void onRButtonDown(int flags, QPoint point);
-
-//    void onLButtonUp(int flags, QPoint point);
-//    void onMButtonUp(int flags, QPoint point);
-//    void onRButtonUp(int flags, QPoint point);
-
-//    void onMouseMove(QMouseEvent* event, QPoint point);
-//    void onMouseWheel(int flags, QPointF point, QPoint delta);
 };
 
 #endif // OCCVIEW_H
