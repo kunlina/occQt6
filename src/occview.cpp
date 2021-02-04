@@ -91,28 +91,7 @@ static QCursor* rotCursor     = nullptr;
 
 occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
 {
-
-    // On macOS, this is needed in order to use GL 4.1 instead of fallback-solution GL 2.1. Qt doesn't do that on its own
-    //    auto current = QOperatingSystemVersion::current();
-    //    if (current.type() == QOperatingSystemVersion::MacOS && current >= QOperatingSystemVersion(QOperatingSystemVersion::MacOSMojave))
-    //    {
-    //        QSurfaceFormat format;
-    //        format.setColorSpace(QSurfaceFormat::sRGBColorSpace); //broken in Qt6
-    //        format.setRenderableType(QSurfaceFormat::OpenGL);
-    //        format.setDepthBufferSize(24);
-    //        format.setStencilBufferSize(4);
-    //        format.setSamples(4);    // Set the number of samples used for multisampling
-    //        format.setVersion(4, 1);
-    //        format.setRenderableType(QSurfaceFormat::OpenGL);
-    //        format.setProfile(QSurfaceFormat::CoreProfile);
-    //        this->setFormat(format);
-    //    }
-
-    //_context = context;
     init();
-
-    this->setAttribute(Qt::WA_PaintOnScreen);
-    this->setAttribute(Qt::WA_NoSystemBackground);
 
     _mouseDefaultGestures = myMouseGestureMap;
     _curMode = curAction3d::Nothing;
@@ -121,12 +100,12 @@ occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
     initCursors();
 
     // No Background
-    setBackgroundRole( QPalette::NoRole);
+//    setBackgroundRole( QPalette::NoRole);
 
     // set focus policy to threat QContextMenuEvent from keyboard
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_PaintOnScreen);
-    setAttribute(Qt::WA_NoSystemBackground);
+//    setAttribute(Qt::WA_NoSystemBackground);
 
     // Enable the mouse tracking, by default the mouse tracking is disabled.
     setMouseTracking(true);

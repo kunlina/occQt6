@@ -84,13 +84,10 @@
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 
-
-
-
-
 // private headers
 #include "emptyspacerwidget.h"
 #include "hirespixmap.h"
+#include "orientationwidget.h"
 
 occWidget::occWidget(QWidget *parent)
     : QWidget(parent)
@@ -106,6 +103,7 @@ occWidget::occWidget(QWidget *parent)
 
     _occView = new occView(this);
     layout->addWidget(_occView);
+
     this->setLayout(layout);
     this->populateToolBar();
 
@@ -114,6 +112,15 @@ occWidget::occWidget(QWidget *parent)
     this->setMinimumSize(QSize(800,600));
 
     this->setWindowTitle("Qt6 with OpenCASCADE demo - occQt6");
+
+    auto orW = new orientationWidget();
+    orW->setWindowFlags(Qt::SubWindow | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+    orW->show();
+
+    auto pX =  0.5*(this->width() - orW->width());
+    auto pY = this->height() - orW->height() - this->contentsMargins().bottom()-1;
+    orW->move(mapToGlobal(QPoint(pX,pY)));
+    // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
 
 }
 

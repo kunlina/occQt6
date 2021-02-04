@@ -91,7 +91,8 @@ HEADERS += \
     src/hirespixmap.h \
     src/occview.h \
     src/occwidget.h \
-    src/occwindow.h
+    src/occwindow.h \
+    src/orientationwidget.h
 
 
 SOURCES += \
@@ -99,7 +100,8 @@ SOURCES += \
     src/main.cpp \
     src/occview.cpp \
     src/occwidget.cpp \
-    src/occwindow.cpp
+    src/occwindow.cpp \
+    src/orientationwidget.cpp
 
 RESOURCES += \
     icons.qrc
@@ -115,23 +117,6 @@ win32 {
 INCLUDEPATH += $${CAS_INC_DIR}
 LIBS += -L$${CAS_LIB_DIR}
 
-#LIBS +=         \
-#    -lTKernel   \
-#    -lTKMath    \
-##    -lTKG3d     \
-#    -lTKBRep    \
-##    -lTKGeomBase\
-##    -lTKGeomAlgo\
-#    -lTKTopAlgo \
-#    -lTKPrim    \
-##    -lTKBO      \
-##    -lTKBool    \
-##    -lTKOffset  \
-#    -lTKService \
-#    -lTKV3d     \
-#    -lTKOpenGl  \
-##    -lTKFillet  \
-#    -lTKXSDRAW
 
 # occ module foundation libs
 LIBS += \
