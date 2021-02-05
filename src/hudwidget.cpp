@@ -10,7 +10,8 @@
 
 hudWidget::hudWidget(QWidget *parent) : QWidget(parent)
 {
-    setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_DeleteOnClose);
+//    setAttribute(Qt::WA_TranslucentBackground);
     auto layout = new QHBoxLayout(this);
     layout->setSpacing(0);
     layout->setContentsMargins(0,0,0,0);

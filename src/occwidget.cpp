@@ -31,9 +31,9 @@
 #include <Standard_WarningsDisable.hxx>
 #include <QAction>
 #include <QActionGroup>
+#include <QCloseEvent>
 #include <QEvent>
 #include <QMessageBox>
-#include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <Standard_WarningsRestore.hxx>
@@ -117,28 +117,36 @@ occWidget::occWidget(QWidget *parent)
     this->setWindowTitle("Qt6 with OpenCASCADE demo - occQt6");
 
     _hudWidget = new hudWidget();
-    _hudWidget->setWindowFlags(Qt::SubWindow | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+    _hudWidget->setWindowFlags(Qt::FramelessWindowHint);// | Qt::WindowStaysOnTopHint);
+
     _hudWidget->show();
     // center, top
-//    auto pX =  0.5*(this->width() - orW->width());
-//    auto pY = _toolBar->pos().y() + _toolBar->height() + this->contentsMargins().top() + 1;
-//    orW->move(mapToGlobal(QPoint(pX,pY)));
+    //    auto pX =  0.5*(this->width() - orW->width());
+    //    auto pY = _toolBar->pos().y() + _toolBar->height() + this->contentsMargins().top() + 1;
+    //    orW->move(mapToGlobal(QPoint(pX,pY)));
 
     // bottom left
-    auto pX =  this->contentsMargins().left();
-    auto pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
-    _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
+    //    auto pX =  this->contentsMargins().left();
+    //    auto pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
+    //    _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
+
+    this->raise();
+    _hudWidget->raise();
 
     // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
 }
 
-occWidget::~occWidget()
-{
-    delete _hudWidget;
-}
 // ------------------------------------------------------------------------------------------------
 // protected functions
 // ------------------------------------------------------------------------------------------------
+void occWidget::closeEvent(QCloseEvent* event)
+{
+    _hudWidget->close();
+    delete _hudWidget;
+    event->accept();
+}
+
+
 bool occWidget::event(QEvent *event)
 {
     switch (event->type())
@@ -151,7 +159,7 @@ bool occWidget::event(QEvent *event)
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        //hudWidgetMove();
+        hudWidgetMove();
         break;
     default:
         break;
@@ -208,11 +216,14 @@ QAction* occWidget::addActionToToolBar(QString iconText,
 
 void occWidget::hudWidgetMove()
 {
-    // bottom left
-    auto pX =  this->contentsMargins().left();
-    auto pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
-    //_hudWidget->move(mapToGlobal(QPoint(pX,pY)));
-    //_hudWidget->raise();
+    if (_hudWidget)
+    {
+        // bottom left
+        const int pX =  this->contentsMargins().left();
+        const int pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
+        _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
+        _hudWidget->raise();
+    }
 }
 
 void occWidget::populateToolBar()

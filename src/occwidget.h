@@ -46,9 +46,10 @@ class occWidget : public QWidget
 
 public:
     occWidget(QWidget *parent = nullptr);
-    ~occWidget();
+    ~occWidget() = default;
 
 protected:
+    void closeEvent(QCloseEvent* event) override;
     bool event(QEvent *event) override;  //needed to move orientationwidget when this window moves
 
 private:
