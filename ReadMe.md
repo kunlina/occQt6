@@ -1,17 +1,24 @@
 # Overview
 * forked from [eryar/occQt](https://github.com/eryar/occQt), combined with [Felipeasg/basicOccWidget](https://github.com/Felipeasg/basicOccWidget) and updated to work with Qt6. 
-* Also uses more modern icons in svg file format from [Lucide](https://github.com/lucide-icons/lucide) plus a few custom ones
+* updated mouse navigation using `AIS_ViewController.hxx`, which didn't exist when `occQt` was written
+* Uses more modern icons in svg file format from [Lucide](https://github.com/lucide-icons/lucide) plus a few custom ones
 
 
 # Features
 * Demonstrate operations for the OpenCASCADE viewer, such as select, pan, zoom and rotate
 * Manipulate the viewer without needing a middle mouse button to be touchpad and MacOS mouse friendly
 * Demonstrate primitive shape construction algorithms usage, such as box, cone, sphere, cylinder and torus creation
+* Demonstrate revol, loft and fillet, chamfer operations
+* Demonstrate boolean operations, such as cut, fuse and common
+* Demonstrate creating helical objects such as springs
 
 # Todo
-* [wip} emonstrate some modeling algorithms, such as prism, revol, loft and fillet, chamfer;
-* Demonstrate boolean operations, such as cut, fuse and common;
-* Demonstrate the helix algorithms;
+* [wip] add heads-up view widget (3d view selection, raytracing on/off, shading, background, etc.)
+* add clipping planes
+* add image export
+* stl/step import/export
+* demonstrate more modeling algorithms, such as prism
+
 
 # Build instructions
 occQt6 requires:
