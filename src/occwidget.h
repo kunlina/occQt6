@@ -37,6 +37,7 @@
 #include <AIS_ColoredShape.hxx>
 
 // project headers
+#include "hudwidget.h"
 #include "occview.h"
 
 class occWidget : public QWidget
@@ -45,11 +46,14 @@ class occWidget : public QWidget
 
 public:
     occWidget(QWidget *parent = nullptr);
-    ~occWidget() = default;
+    ~occWidget();
+
+protected:
+    bool event(QEvent *event) override;  //needed to move orientationwidget when this window moves
 
 private:
     occView* _occView;
-
+    hudWidget* _hudWidget;
     QToolBar* _toolBar;
 
     void about();
@@ -57,6 +61,7 @@ private:
                                 QString iconFileName,
                                 QString toolTipText,
                                 bool addToToolBar);
+    void hudWidgetMove();
     void populateToolBar();
     void setShapeAttributes(Handle(AIS_Shape) shape, Quantity_Color color);
 

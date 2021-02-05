@@ -1,4 +1,4 @@
-#include "orientationwidget.h"
+#include "hudwidget.h"
 
 #include <QDebug>
 #include <QHBoxLayout>
@@ -8,7 +8,7 @@
 
 #include "hirespixmap.h"
 
-orientationWidget::orientationWidget(QWidget *parent) : QWidget(parent)
+hudWidget::hudWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     auto layout = new QHBoxLayout(this);

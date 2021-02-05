@@ -89,19 +89,19 @@ CONFIG(release, debug|release) {
 HEADERS += \
     src/emptyspacerwidget.h \
     src/hirespixmap.h \
+    src/hudwidget.h \
     src/occview.h \
     src/occwidget.h \
-    src/occwindow.h \
-    src/orientationwidget.h
+    src/occwindow.h
 
 
 SOURCES += \
     src/emptyspacerwidget.cpp \
+    src/hudwidget.cpp \
     src/main.cpp \
     src/occview.cpp \
     src/occwidget.cpp \
-    src/occwindow.cpp \
-    src/orientationwidget.cpp
+    src/occwindow.cpp
 
 RESOURCES += \
     icons.qrc
