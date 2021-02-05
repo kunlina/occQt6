@@ -30,4 +30,6 @@ Once both libs are installed, update the `CAS_INC_DIR` and `CAS_LIB_DIR` variabl
 qmake
 (n)make
 ```
-This creates an executable in the `binaries/<operating system>/release` folder. Before starting the executable you need to set your `PATH` or `LD_LIBRARY_PATH` to point to both Qt's and OpenCASCADE's dynamic libraries, as well as their dependencies (e.g., freetype or freeimage for OpenCASCADE). 
+This creates an executable in the `binaries/<operating system>/release` folder. 
+
+Before starting the executable you need to set your `PATH` or `LD_LIBRARY_PATH` to point to both Qt's and OpenCASCADE's dynamic libraries, as well as their dependencies (e.g., freetype or freeimage for OpenCASCADE). 
