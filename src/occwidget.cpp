@@ -118,7 +118,7 @@ occWidget::occWidget(QWidget *parent)
     orW->show();
 
     auto pX =  0.5*(this->width() - orW->width());
-    auto pY = this->height() - orW->height() - this->contentsMargins().bottom()-1;
+    auto pY = _toolBar->pos().y() + _toolBar->height() + this->contentsMargins().top() + 1;
     orW->move(mapToGlobal(QPoint(pX,pY)));
     // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
 
@@ -157,7 +157,7 @@ QAction* occWidget::addActionToToolBar(QString iconText,
                                        QString toolTipText,
                                        bool addToToolBar)
 {
-    const int iconHeight = _toolBar->iconSize().height();
+    const int iconHeight {_toolBar->iconSize().height()};
     auto action = new QAction(iconText, this);
     action->setToolTip(toolTipText);
     iconFileName.prepend(":/icons/");

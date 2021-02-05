@@ -26,5 +26,7 @@
         <file>icons/boolFuse.svg</file>
         <file>icons/boolCommon.svg</file>
         <file>icons/helix.svg</file>
+        <file>icons/boxLeft.svg</file>
+        <file>icons/boxRight.svg</file>
     </qresource>
 </RCC>

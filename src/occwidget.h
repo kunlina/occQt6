@@ -81,7 +81,5 @@ private:
     void makeCylindricalHelix();
     void makeConicalHelix();
     void makeToroidalHelix();
-
-    const QString _iconColor {"#778ca3"}; //blue grey
 };
 #endif // OCCTWIDGET_H

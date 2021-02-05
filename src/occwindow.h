@@ -58,10 +58,11 @@
 class occWindow : public Aspect_Window
 {
     DEFINE_STANDARD_RTTIEXT(occWindow, Aspect_Window)
-    public:
 
-        // constructor
-        occWindow(QWidget *parent = nullptr);
+public:
+
+    // constructor
+    occWindow(QWidget *parent = nullptr);
 
     virtual void Destroy();
 
