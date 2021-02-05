@@ -152,7 +152,7 @@ bool occWidget::event(QEvent *event)
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        hudWidgetMove();
+        //hudWidgetMove();
         break;
     default:
         break;
