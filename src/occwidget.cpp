@@ -130,7 +130,6 @@ occWidget::occWidget(QWidget *parent)
     _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
 
     // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
-
 }
 
 occWidget::~occWidget()
@@ -194,6 +193,7 @@ QAction* occWidget::addActionToToolBar(QString iconText,
                                        QString toolTipText,
                                        bool addToToolBar)
 {
+
     const int iconHeight {_toolBar->iconSize().height()};
     auto action = new QAction(iconText, this);
     action->setToolTip(toolTipText);
@@ -218,6 +218,11 @@ void occWidget::hudWidgetMove()
 void occWidget::populateToolBar()
 {
     _toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
+
+#if __APPLE__
+    auto iconSize = _toolBar->iconSize();
+    _toolBar->setIconSize(iconSize*0.75);
+#endif
 
     // mouse actions
     bool addToToolbar {false};
