@@ -161,7 +161,7 @@ QAction* occWidget::addActionToToolBar(QString iconText,
     auto action = new QAction(iconText, this);
     action->setToolTip(toolTipText);
     iconFileName.prepend(":/icons/");
-    action->setIcon(hiresPixmap(iconFileName, _iconColor, iconHeight));
+    action->setIcon(hiresPixmap(iconFileName, iconHeight));
     if (addToToolBar)
         _toolBar->addAction(action);
 
