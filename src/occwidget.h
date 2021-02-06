@@ -37,7 +37,6 @@
 #include <AIS_ColoredShape.hxx>
 
 // project headers
-#include "hudwidget.h"
 #include "occview.h"
 
 class occWidget : public QWidget
@@ -54,14 +53,13 @@ protected:
 
 private:
     occView* _occView;
-    hudWidget* _hudWidget;
+
     QToolBar* _toolBar;
 
     void about();
     QAction* addActionToToolBar(QString iconText,
                                 QString iconFileName,
-                                QString toolTipText,
-                                bool addToToolBar);
+                                QString toolTipText);
     void hudWidgetMove();
     void populateToolBar();
     void setShapeAttributes(Handle(AIS_Shape) shape, Quantity_Color color);

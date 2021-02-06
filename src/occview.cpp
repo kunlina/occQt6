@@ -13,6 +13,7 @@
 
 #include "occview.h"
 
+// Qt headers
 #include <Standard_WarningsDisable.hxx>
 #include <QActionGroup>
 #include <QApplication>

@@ -87,17 +87,17 @@ CONFIG(release, debug|release) {
 }
 
 HEADERS += \
+    src/customtoolbutton.h \
     src/emptyspacerwidget.h \
     src/hirespixmap.h \
-    src/hudwidget.h \
     src/occview.h \
     src/occwidget.h \
     src/occwindow.h
 
 
 SOURCES += \
+    src/customtoolbutton.cpp \
     src/emptyspacerwidget.cpp \
-    src/hudwidget.cpp \
     src/main.cpp \
     src/occview.cpp \
     src/occwidget.cpp \

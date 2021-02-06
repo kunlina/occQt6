@@ -28,13 +28,14 @@
 
 #include "occwidget.h"
 
+// Qt headers
 #include <Standard_WarningsDisable.hxx>
 #include <QAction>
-#include <QActionGroup>
 #include <QCloseEvent>
 #include <QEvent>
 #include <QMessageBox>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <Standard_WarningsRestore.hxx>
 
@@ -89,12 +90,16 @@
 #include <TopExp_Explorer.hxx>
 
 // private headers
+#include "customtoolbutton.h"
 #include "emptyspacerwidget.h"
 #include "hirespixmap.h"
 
 occWidget::occWidget(QWidget *parent)
     : QWidget(parent)
 {
+    //    _hudWidget = new hudWidget(this);
+    //   _hudWidget->show();
+    //    _hudWidget->setWindowFlags(Qt::FramelessWindowHint);// | Qt::WindowStaysOnTopHint);
 
     // add toolBar
     auto layout = new QVBoxLayout(this);
@@ -110,28 +115,13 @@ occWidget::occWidget(QWidget *parent)
     this->setLayout(layout);
     this->populateToolBar();
 
+
     // show and force size update to redraw occt window
     this->show();
     this->setMinimumSize(QSize(800,600));
-
     this->setWindowTitle("Qt6 with OpenCASCADE demo - occQt6");
-
-    _hudWidget = new hudWidget();
-    _hudWidget->setWindowFlags(Qt::FramelessWindowHint);// | Qt::WindowStaysOnTopHint);
-
-    _hudWidget->show();
-    // center, top
-    //    auto pX =  0.5*(this->width() - orW->width());
-    //    auto pY = _toolBar->pos().y() + _toolBar->height() + this->contentsMargins().top() + 1;
-    //    orW->move(mapToGlobal(QPoint(pX,pY)));
-
-    // bottom left
-    //    auto pX =  this->contentsMargins().left();
-    //    auto pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
-    //    _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
-
-    this->raise();
-    _hudWidget->raise();
+    //    this->raise();
+    //    _hudWidget->raise();
 
     // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
 }
@@ -141,29 +131,29 @@ occWidget::occWidget(QWidget *parent)
 // ------------------------------------------------------------------------------------------------
 void occWidget::closeEvent(QCloseEvent* event)
 {
-    _hudWidget->close();
-    delete _hudWidget;
+    //    _hudWidget->close();
+    //    delete _hudWidget;
     event->accept();
 }
 
 
 bool occWidget::event(QEvent *event)
 {
-    switch (event->type())
-    {
-    case QEvent::Show:
-        //_hudWidget->show();
-        //QTimer::singleShot(50, this, SLOT(widgetSizeMove()));
-        //Wait until the Main Window be shown
-        break;
-    case QEvent::WindowActivate:
-    case QEvent::Resize:
-    case QEvent::Move:
-        hudWidgetMove();
-        break;
-    default:
-        break;
-    }
+    //    switch (event->type())
+    //    {
+    //    case QEvent::Show:
+    //        _hudWidget->show();
+    //        QTimer::singleShot(50, this, [=](){hudWidgetMove();});
+    //        //Wait until the Main Window be shown
+    //        break;
+    //    case QEvent::WindowActivate:
+    //    case QEvent::Resize:
+    //    case QEvent::Move:
+    //        hudWidgetMove();
+    //        break;
+    //    default:
+    //        break;
+    //    }
 
     return QWidget::event(event);
 }
@@ -198,8 +188,7 @@ void occWidget::about()
 
 QAction* occWidget::addActionToToolBar(QString iconText,
                                        QString iconFileName,
-                                       QString toolTipText,
-                                       bool addToToolBar)
+                                       QString toolTipText)
 {
 
     const int iconHeight {_toolBar->iconSize().height()};
@@ -207,8 +196,7 @@ QAction* occWidget::addActionToToolBar(QString iconText,
     action->setToolTip(toolTipText);
     iconFileName.prepend(":/icons/");
     action->setIcon(hiresPixmap(iconFileName, iconHeight));
-    if (addToToolBar)
-        _toolBar->addAction(action);
+    _toolBar->addAction(action);
 
     return action;
 }
@@ -216,85 +204,87 @@ QAction* occWidget::addActionToToolBar(QString iconText,
 
 void occWidget::hudWidgetMove()
 {
-    if (_hudWidget)
-    {
-        // bottom left
-        const int pX =  this->contentsMargins().left();
-        const int pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
-        _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
-        _hudWidget->raise();
-    }
+    //    if (_hudWidget)
+    //    {
+    //        // bottom left
+    //        const int pX =  this->contentsMargins().left();
+    //        const int pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
+    //        _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
+    //        _hudWidget->raise();
+    //    }
 }
 
 void occWidget::populateToolBar()
 {
     _toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
-
 #if __APPLE__
     auto iconSize = _toolBar->iconSize();
     _toolBar->setIconSize(iconSize*0.75);
 #endif
+    const int iconHeight {_toolBar->iconSize().height()};
 
-    // mouse actions
-    bool addToToolbar {false};
-    auto orbitAction = addActionToToolBar("Orbit", "orbit.svg", "Orbit mode", addToToolbar);
-    auto selectAction = addActionToToolBar("Select", "lucide/mouse-pointer.svg", "Select items", addToToolbar);
-    auto zoomAction = addActionToToolBar("Zoom", "lucide/zoom-in.svg", "Zoom mode", addToToolbar);
-    auto panAction = addActionToToolBar("Pan", "lucide/move.svg", "Pan mode", addToToolbar);
-    auto rotateAction = addActionToToolBar("Rotate", "lucide/rotate-ccw.svg", "Rotate mode", addToToolbar);
+    // add orbit, select, zoom, pan, rotate in QMenu to custom QToolButton
+    auto menu = new QMenu;
+    menu->setContentsMargins(0,0,0,0);
 
-    orbitAction->setCheckable(true);
-    selectAction->setCheckable(true);
-    zoomAction->setCheckable(true);
-    panAction->setCheckable(true);
-    rotateAction->setCheckable(true);
-    // select first action
-    orbitAction->setChecked(true);
-    // add to QActionGroup and then add to toolbar
-    auto mouseGroup = new QActionGroup(this);
-    mouseGroup->addAction(orbitAction);
-    mouseGroup->addAction(selectAction);
-    mouseGroup->addAction(zoomAction);
-    mouseGroup->addAction(panAction);
-    mouseGroup->addAction(rotateAction);
-    _toolBar->addActions(mouseGroup->actions());
+    auto orbitAction = new QAction("Orbit", this);
+    orbitAction->setIcon(hiresPixmap(":/icons/orbit.svg", iconHeight));
+    menu->addAction(orbitAction);
 
-    // all actions below will be added to the toolbar directly
-    addToToolbar = true;
+    auto selectAction = new QAction("Select", this);
+    selectAction->setIcon(hiresPixmap(":/icons/lucide/mouse-pointer.svg", iconHeight));
+    menu->addAction(selectAction);
+
+    auto zoomAction = new QAction("Zoom", this);
+    zoomAction->setIcon(hiresPixmap(":/icons/lucide/zoom-in.svg", iconHeight));
+    menu->addAction(zoomAction);
+
+    auto panAction = new QAction("Pan", this);
+    panAction->setIcon(hiresPixmap(":/icons/lucide/move.svg", iconHeight));
+    menu->addAction(panAction);
+
+    auto rotateAction = new QAction("Rotate", this);
+    rotateAction->setIcon(hiresPixmap(":/icons/lucide/rotate-ccw.svg", iconHeight));
+    menu->addAction(rotateAction);
+
+    auto toolButton = new customToolButton(this);
+    toolButton->setMenu(menu);
+    toolButton->setDefaultAction(orbitAction);
+    _toolBar->addWidget(toolButton);
 
     // add reset view action
     _toolBar->addSeparator();
-    auto reset = addActionToToolBar("Reset View", "lucide/reset.svg", "Reset view", addToToolbar);// new QAction("Reset View", this);
+    auto reset = addActionToToolBar("Reset View", "lucide/reset.svg", "Reset view");// new QAction("Reset View", this);
 
     // add primitives
     _toolBar->addSeparator();
-    auto boxAction = addActionToToolBar("Box", "lucide/box.svg", "Add box", addToToolbar);// new QAction("Box", this);
-    auto coneAction = addActionToToolBar("Cone", "lucide/triangle.svg", "Add triangles", addToToolbar); // new QAction("Cone", this);
-    auto sphereAction = addActionToToolBar("Sphere", "lucide/globe.svg", "Add sphere", addToToolbar);
-    auto cylinderAction = addActionToToolBar("Cylinder", "lucide/database.svg", "Add cylinders", addToToolbar);
-    auto torusAction = addActionToToolBar("Torus", "lucide/disc.svg", "Add torus", addToToolbar);
-    auto textAction = addActionToToolBar("Text", "lucide/type.svg", "Add text", addToToolbar);
+    auto boxAction = addActionToToolBar("Box", "lucide/box.svg", "Add box");// new QAction("Box", this);
+    auto coneAction = addActionToToolBar("Cone", "lucide/triangle.svg", "Add triangles"); // new QAction("Cone", this);
+    auto sphereAction = addActionToToolBar("Sphere", "lucide/globe.svg", "Add sphere");
+    auto cylinderAction = addActionToToolBar("Cylinder", "lucide/database.svg", "Add cylinders");
+    auto torusAction = addActionToToolBar("Torus", "lucide/disc.svg", "Add torus");
+    auto textAction = addActionToToolBar("Text", "lucide/type.svg", "Add text");
 
     // add fillet,chamfer, etc
     _toolBar->addSeparator();
-    auto filletAction = addActionToToolBar("Fillet", "fillet.svg", "Add fillet example", addToToolbar);
-    auto chamferAction = addActionToToolBar("Chamfer", "chamfer.svg", "Add chamfer example", addToToolbar);
-    auto extrudeAction = addActionToToolBar("Extrude", "extrude.svg", "Add extrusion example", addToToolbar);
-    auto revolAction = addActionToToolBar("Revolve", "revol.svg", "Add revolution example", addToToolbar);
-    auto loftAction = addActionToToolBar("Loft", "loft.svg", "Add loft example", addToToolbar);
+    auto filletAction = addActionToToolBar("Fillet", "fillet.svg", "Add fillet example");
+    auto chamferAction = addActionToToolBar("Chamfer", "chamfer.svg", "Add chamfer example");
+    auto extrudeAction = addActionToToolBar("Extrude", "extrude.svg", "Add extrusion example");
+    auto revolAction = addActionToToolBar("Revolve", "revol.svg", "Add revolution example");
+    auto loftAction = addActionToToolBar("Loft", "loft.svg", "Add loft example");
 
     // boolean operations
     _toolBar->addSeparator();
-    auto boolCutAction = addActionToToolBar("Boolean Cut", "boolCut.svg", "Add Boolean cut operation", addToToolbar);
-    auto boolFuseAction = addActionToToolBar("Boolean Fuse", "boolFuse.svg", "Add Boolean fuse operation", addToToolbar);
-    auto boolCommonAction = addActionToToolBar("Boolean Common", "boolCommon.svg", "Add Boolean common operation", addToToolbar);
+    auto boolCutAction = addActionToToolBar("Boolean Cut", "boolCut.svg", "Add Boolean cut operation");
+    auto boolFuseAction = addActionToToolBar("Boolean Fuse", "boolFuse.svg", "Add Boolean fuse operation");
+    auto boolCommonAction = addActionToToolBar("Boolean Common", "boolCommon.svg", "Add Boolean common operation");
 
     // draw helices
     _toolBar->addSeparator();
-    auto helixAction = addActionToToolBar("Helices", "helix.svg", "add helices example", addToToolbar);
+    auto helixAction = addActionToToolBar("Helices", "helix.svg", "add helices example");
 
     // add about action
-    auto about = addActionToToolBar("About", "lucide/info.svg", "About occQt6", addToToolbar);
+    auto about = addActionToToolBar("About", "lucide/info.svg", "About occQt6");
 
     // add spacer widget to toolBar
     auto empty = new emptySpacerWidget(this);
