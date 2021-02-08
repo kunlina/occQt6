@@ -39,9 +39,14 @@ CAS_INC_DIR = C:/occt/inc
 CAS_LIB_DIR = C:/occt/win64/vc19/lib
 }
 
+#macx {
+#CAS_INC_DIR = /usr/local/occt/include/opencascade/
+#CAS_LIB_DIR = /usr/local/occt/lib/
+#}
+
 macx {
-CAS_INC_DIR = /usr/local/occt/include/opencascade/
-CAS_LIB_DIR = /usr/local/occt/lib/
+CAS_INC_DIR = /Users/marius/occt/include/opencascade/
+CAS_LIB_DIR = /Users/marius/occt/lib/
 }
 
 # major, minor
