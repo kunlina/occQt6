@@ -39,7 +39,7 @@
 
 // private headers
 #include "occwindow.h"
-
+#include "occviewcontextmenu.h"
 
 namespace
 {
@@ -97,7 +97,7 @@ occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
     _mouseDefaultGestures = myMouseGestureMap;
     _curMode = curAction3d::Nothing;
 
-    initViewActions();
+    //initViewActions();
     initCursors();
 
     // No Background
@@ -354,11 +354,11 @@ void occView::initCursors()
         rotCursor = new QCursor (Qt::SizeHorCursor); //new QCursor( QPixmap( ApplicationCommonWindow::getResourceDir() + QString( "/" ) + QObject::tr( "ICON_CURSOR_ROTATE" ) ) );
 }
 
-QList<QAction*>* occView::getViewActions()
-{
-    initViewActions();
-    return _viewActions;
-}
+//QList<QAction*>* occView::getViewActions()
+//{
+//    initViewActions();
+//    return _viewActions;
+//}
 
 
 QList<QAction*>* occView::getRaytraceActions()
@@ -367,132 +367,132 @@ QList<QAction*>* occView::getRaytraceActions()
     return _raytraceActions;
 }
 
-void occView::initViewActions()
-{
-    if (_viewActions)
-        return;
+//void occView::initViewActions()
+//{
+//    if (_viewActions)
+//        return;
 
-    _viewActions = new QList<QAction*>();
+//    _viewActions = new QList<QAction*>();
 
-    QAction* a;
+//    QAction* a;
 
-    a = new QAction(QObject::tr("MNU_FITALL"), this);
-    a->setToolTip(QObject::tr("TBR_FITALL"));
-    a->setStatusTip(QObject::tr("TBR_FITALL"));
-    connect(a, &QAction::triggered, this, &occView::fitAll);
-    _viewActions->insert(viewFitAll, a);
+//    a = new QAction(QObject::tr("MNU_FITALL"), this);
+//    a->setToolTip(QObject::tr("TBR_FITALL"));
+//    a->setStatusTip(QObject::tr("TBR_FITALL"));
+//    connect(a, &QAction::triggered, this, &occView::fitAll);
+//    _viewActions->insert(viewFitAll, a);
 
-    a = new QAction(QObject::tr("MNU_FITAREA"), this );
-    a->setToolTip(QObject::tr("TBR_FITAREA"));
-    a->setStatusTip(QObject::tr("TBR_FITAREA"));
-    connect(a, &QAction::triggered, this, &occView::fitArea);
+//    a = new QAction(QObject::tr("MNU_FITAREA"), this );
+//    a->setToolTip(QObject::tr("TBR_FITAREA"));
+//    a->setStatusTip(QObject::tr("TBR_FITAREA"));
+//    connect(a, &QAction::triggered, this, &occView::fitArea);
 
-    a->setCheckable(true);
-    connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewFitArea, a);
+//    a->setCheckable(true);
+//    connect(a, &QAction::toggled, this, &occView::updateToggled);
+//    _viewActions->insert(viewFitArea, a);
 
-    a = new QAction(QObject::tr("MNU_ZOOM"), this );
-    a->setToolTip( QObject::tr("TBR_ZOOM") );
-    a->setStatusTip( QObject::tr("TBR_ZOOM") );
-    connect(a, &QAction::triggered, this, &occView::zoom);
+//    a = new QAction(QObject::tr("MNU_ZOOM"), this );
+//    a->setToolTip( QObject::tr("TBR_ZOOM") );
+//    a->setStatusTip( QObject::tr("TBR_ZOOM") );
+//    connect(a, &QAction::triggered, this, &occView::zoom);
 
-    a->setCheckable(true);
-    connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewZoom, a );
+//    a->setCheckable(true);
+//    connect(a, &QAction::toggled, this, &occView::updateToggled);
+//    _viewActions->insert(viewZoom, a );
 
-    a = new QAction(QObject::tr("MNU_PAN"), this );
-    a->setToolTip( QObject::tr("TBR_PAN") );
-    a->setStatusTip( QObject::tr("TBR_PAN") );
-    connect(a, &QAction::triggered, this, &occView::pan);
+//    a = new QAction(QObject::tr("MNU_PAN"), this );
+//    a->setToolTip( QObject::tr("TBR_PAN") );
+//    a->setStatusTip( QObject::tr("TBR_PAN") );
+//    connect(a, &QAction::triggered, this, &occView::pan);
 
-    a->setCheckable(true);
-    connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewPan, a );
+//    a->setCheckable(true);
+//    connect(a, &QAction::toggled, this, &occView::updateToggled);
+//    _viewActions->insert(viewPan, a );
 
-    a = new QAction(QObject::tr("MNU_GLOBALPAN"), this );
-    a->setToolTip( QObject::tr("TBR_GLOBALPAN") );
-    a->setStatusTip( QObject::tr("TBR_GLOBALPAN") );
-    connect(a, &QAction::triggered, this, &occView::globalPan);
+//    a = new QAction(QObject::tr("MNU_GLOBALPAN"), this );
+//    a->setToolTip( QObject::tr("TBR_GLOBALPAN") );
+//    a->setStatusTip( QObject::tr("TBR_GLOBALPAN") );
+//    connect(a, &QAction::triggered, this, &occView::globalPan);
 
-    a->setCheckable(true);
-    connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewGlobalPan, a );
+//    a->setCheckable(true);
+//    connect(a, &QAction::toggled, this, &occView::updateToggled);
+//    _viewActions->insert(viewGlobalPan, a );
 
-    a = new QAction(QObject::tr("MNU_FRONT"), this );
-    a->setToolTip( QObject::tr("TBR_FRONT") );
-    a->setStatusTip( QObject::tr("TBR_FRONT") );
-    connect(a, &QAction::triggered, this, &occView::front);
-    _viewActions->insert(viewFront, a );
+//    a = new QAction(QObject::tr("MNU_FRONT"), this );
+//    a->setToolTip( QObject::tr("TBR_FRONT") );
+//    a->setStatusTip( QObject::tr("TBR_FRONT") );
+//    connect(a, &QAction::triggered, this, &occView::front);
+//    _viewActions->insert(viewFront, a );
 
-    a = new QAction(QObject::tr("MNU_BACK"), this );
-    a->setToolTip( QObject::tr("TBR_BACK") );
-    a->setStatusTip( QObject::tr("TBR_BACK") );
-    connect(a, &QAction::triggered, this, &occView::back);
-    _viewActions->insert(viewBack, a);
+//    a = new QAction(QObject::tr("MNU_BACK"), this );
+//    a->setToolTip( QObject::tr("TBR_BACK") );
+//    a->setStatusTip( QObject::tr("TBR_BACK") );
+//    connect(a, &QAction::triggered, this, &occView::back);
+//    _viewActions->insert(viewBack, a);
 
-    a = new QAction(QObject::tr("MNU_TOP"), this );
-    a->setToolTip( QObject::tr("TBR_TOP") );
-    a->setStatusTip( QObject::tr("TBR_TOP") );
-    connect(a, &QAction::triggered, this, &occView::top);
-    _viewActions->insert(viewTop, a );
+//    a = new QAction(QObject::tr("MNU_TOP"), this );
+//    a->setToolTip( QObject::tr("TBR_TOP") );
+//    a->setStatusTip( QObject::tr("TBR_TOP") );
+//    connect(a, &QAction::triggered, this, &occView::top);
+//    _viewActions->insert(viewTop, a );
 
-    a = new QAction(QObject::tr("MNU_BOTTOM"), this );
-    a->setToolTip( QObject::tr("TBR_BOTTOM") );
-    a->setStatusTip( QObject::tr("TBR_BOTTOM") );
-    connect(a, &QAction::triggered, this, &occView::bottom);
-    _viewActions->insert(viewBottom, a );
+//    a = new QAction(QObject::tr("MNU_BOTTOM"), this );
+//    a->setToolTip( QObject::tr("TBR_BOTTOM") );
+//    a->setStatusTip( QObject::tr("TBR_BOTTOM") );
+//    connect(a, &QAction::triggered, this, &occView::bottom);
+//    _viewActions->insert(viewBottom, a );
 
-    a = new QAction(QObject::tr("MNU_LEFT"), this );
-    a->setToolTip( QObject::tr("TBR_LEFT") );
-    a->setStatusTip( QObject::tr("TBR_LEFT") );
-    connect(a, &QAction::triggered, this, &occView::left);
-    _viewActions->insert(viewLeft, a );
+//    a = new QAction(QObject::tr("MNU_LEFT"), this );
+//    a->setToolTip( QObject::tr("TBR_LEFT") );
+//    a->setStatusTip( QObject::tr("TBR_LEFT") );
+//    connect(a, &QAction::triggered, this, &occView::left);
+//    _viewActions->insert(viewLeft, a );
 
-    a = new QAction(QObject::tr("MNU_RIGHT"), this );
-    a->setToolTip( QObject::tr("TBR_RIGHT") );
-    a->setStatusTip( QObject::tr("TBR_RIGHT") );
-    connect(a, &QAction::triggered, this, &occView::right);
-    _viewActions->insert(viewRight, a );
+//    a = new QAction(QObject::tr("MNU_RIGHT"), this );
+//    a->setToolTip( QObject::tr("TBR_RIGHT") );
+//    a->setStatusTip( QObject::tr("TBR_RIGHT") );
+//    connect(a, &QAction::triggered, this, &occView::right);
+//    _viewActions->insert(viewRight, a );
 
-    a = new QAction(QObject::tr("MNU_AXO"), this );
-    a->setToolTip( QObject::tr("TBR_AXO") );
-    a->setStatusTip( QObject::tr("TBR_AXO") );
-    connect(a, &QAction::triggered, this, &occView::axo);
-    _viewActions->insert(viewAxo, a );
+//    a = new QAction(QObject::tr("MNU_AXO"), this );
+//    a->setToolTip( QObject::tr("TBR_AXO") );
+//    a->setStatusTip( QObject::tr("TBR_AXO") );
+//    connect(a, &QAction::triggered, this, &occView::axo);
+//    _viewActions->insert(viewAxo, a );
 
-    a = new QAction(QObject::tr("MNU_ROTATION"), this );
-    a->setToolTip( QObject::tr("TBR_ROTATION") );
-    a->setStatusTip( QObject::tr("TBR_ROTATION") );
-    connect(a, &QAction::triggered, this, &occView::rotation);
-    a->setCheckable( true );
-    connect(a, &QAction::toggled, this, &occView::updateToggled);
-    _viewActions->insert(viewRotation, a );
+//    a = new QAction(QObject::tr("MNU_ROTATION"), this );
+//    a->setToolTip( QObject::tr("TBR_ROTATION") );
+//    a->setStatusTip( QObject::tr("TBR_ROTATION") );
+//    connect(a, &QAction::triggered, this, &occView::rotation);
+//    a->setCheckable( true );
+//    connect(a, &QAction::toggled, this, &occView::updateToggled);
+//    _viewActions->insert(viewRotation, a );
 
-    a = new QAction(QObject::tr("MNU_RESET"), this );
-    a->setToolTip( QObject::tr("TBR_RESET") );
-    a->setStatusTip( QObject::tr("TBR_RESET") );
-    connect(a, &QAction::triggered, this, &occView::reset);
-    _viewActions->insert(viewReset, a );
+//    a = new QAction(QObject::tr("MNU_RESET"), this );
+//    a->setToolTip( QObject::tr("TBR_RESET") );
+//    a->setStatusTip( QObject::tr("TBR_RESET") );
+//    connect(a, &QAction::triggered, this, &occView::reset);
+//    _viewActions->insert(viewReset, a );
 
-    QActionGroup* ag = new QActionGroup(this);
+//    QActionGroup* ag = new QActionGroup(this);
 
-    a = new QAction(QObject::tr("MNU_HLROFF"), this );
-    a->setToolTip( QObject::tr("TBR_HLROFF") );
-    a->setStatusTip( QObject::tr("TBR_HLROFF") );
-    connect(a, &QAction::triggered, this, &occView::hlrOff);
-    a->setCheckable( true );
-    ag->addAction(a);
-    _viewActions->insert(viewHlrOff, a);
+//    a = new QAction(QObject::tr("MNU_HLROFF"), this );
+//    a->setToolTip( QObject::tr("TBR_HLROFF") );
+//    a->setStatusTip( QObject::tr("TBR_HLROFF") );
+//    connect(a, &QAction::triggered, this, &occView::hlrOff);
+//    a->setCheckable( true );
+//    ag->addAction(a);
+//    _viewActions->insert(viewHlrOff, a);
 
-    a = new QAction(QObject::tr("MNU_HLRON"), this );
-    a->setToolTip( QObject::tr("TBR_HLRON") );
-    a->setStatusTip( QObject::tr("TBR_HLRON") );
-    connect(a, &QAction::triggered,this, &occView::hlrOn);
+//    a = new QAction(QObject::tr("MNU_HLRON"), this );
+//    a->setToolTip( QObject::tr("TBR_HLRON") );
+//    a->setStatusTip( QObject::tr("TBR_HLRON") );
+//    connect(a, &QAction::triggered,this, &occView::hlrOn);
 
-    a->setCheckable( true );
-    ag->addAction(a);
-    _viewActions->insert(viewHlrOn, a );
-}
+//    a->setCheckable( true );
+//    ag->addAction(a);
+//    _viewActions->insert(viewHlrOn, a );
+//}
 
 
 void occView::initRaytraceActions()
@@ -588,8 +588,9 @@ void occView::mouseReleaseEvent(QMouseEvent* event)
     if (_curMode == curAction3d::GlobalPanning)
         _view->Place(point.x(), point.y(), _curZoom);
 
-    //if (_curMode != curAction3d_Nothing)
-    //    setCurAction(curAction3d_Nothing);
+    // required to reset mouse mode, e.g. after WindowZooming
+    if (_curMode != curAction3d::Nothing)
+        setCurAction(curAction3d::Nothing);
 
     if (event->button() == Qt::RightButton && (flags & Aspect_VKeyFlags_CTRL) == 0 && (_clickPos - point).cwiseAbs().maxComp() <= 4)
         popup(point.x(), point.y());
@@ -635,7 +636,7 @@ void occView::defineMouseGestures()
     switch (_curMode)
     {
     case curAction3d::Nothing:
-        noActiveActions();
+        //noActiveActions();
         myMouseGestureMap = _mouseDefaultGestures;
         break;
     case curAction3d::DynamicZooming:
@@ -691,38 +692,50 @@ void occView::popup(int /*x*/, int /*y*/)
     }
     else
     {
-        if (!_backMenu)
-        {
-            _backMenu = new QMenu(nullptr);
+        auto contextMenu = occViewContextMenu(nullptr);
 
-            initViewActions();
-            auto viewMenu = _backMenu->addMenu(tr("View"));
-            for (auto action : *_viewActions)
-                viewMenu->addAction(action);
+        //connections
+        connect(&contextMenu, &occViewContextMenu::fitAll, this, &occView::fitAll);
+        connect(&contextMenu, &occViewContextMenu::fitArea, this, &occView::fitArea);
+        connect(&contextMenu, &occViewContextMenu::axo, this, &occView::axo);
+        connect(&contextMenu, &occViewContextMenu::front, this, &occView::front);
+        connect(&contextMenu, &occViewContextMenu::back, this, &occView::back);
 
-            initRaytraceActions();
-            auto raytraceMenu = _backMenu->addMenu(tr("Raytracing"));
-            for (auto action : *_raytraceActions)
-                raytraceMenu->addAction(action);
-
-
-            QAction* a = new QAction( QObject::tr("Change Background"), this );
-            a->setToolTip( QObject::tr("TBR_CH_BACK") );
-            connect(a, &QAction::triggered, this, &occView::onBackground);
-            _backMenu->addAction(a);
-            addItemInPopup(_backMenu);
-
-            a = new QAction( QObject::tr("MNU_CH_ENV_MAP"), this );
-            a->setToolTip( QObject::tr("TBR_CH_ENV_MAP") );
-            connect(a, &QAction::triggered, this, &occView::onEnvironmentMap);
-            a->setCheckable(true);
-            a->setChecked(false);
-            _backMenu->addAction(a);
-            addItemInPopup(_backMenu);
-        }
-
-        _backMenu->exec(QCursor::pos());
+        // execute menu
+        contextMenu.exec(QCursor::pos());
     }
+//        if (!_backMenu)
+//        {
+//            _backMenu = new QMenu(nullptr);
+
+//            //initViewActions()
+//            auto viewMenu = _backMenu->addMenu(tr("View"));
+//            for (auto action : *_viewActions)
+//                viewMenu->addAction(action);
+
+//            initRaytraceActions();
+//            auto raytraceMenu = _backMenu->addMenu(tr("Raytracing"));
+//            for (auto action : *_raytraceActions)
+//                raytraceMenu->addAction(action);
+
+
+//            QAction* a = new QAction( QObject::tr("Change Background"), this );
+//            a->setToolTip( QObject::tr("TBR_CH_BACK") );
+//            connect(a, &QAction::triggered, this, &occView::onBackground);
+//            _backMenu->addAction(a);
+//            addItemInPopup(_backMenu);
+
+//            a = new QAction( QObject::tr("MNU_CH_ENV_MAP"), this );
+//            a->setToolTip( QObject::tr("TBR_CH_ENV_MAP") );
+//            connect(a, &QAction::triggered, this, &occView::onEnvironmentMap);
+//            a->setCheckable(true);
+//            a->setChecked(false);
+//            _backMenu->addAction(a);
+//            addItemInPopup(_backMenu);
+//        }
+
+//        _backMenu->exec(QCursor::pos());
+//    }
     //if ( w )
     //  w->setFocus();
 }
@@ -732,23 +745,23 @@ void occView::addItemInPopup(QMenu* /* menu */)
     //empty
 }
 
-void occView::noActiveActions()
-{
-    for (int i = viewFitAll; i < viewHlrOff ; i++ )
-    {
-        QAction* anAction = _viewActions->at(i);
-        if( ( anAction == _viewActions->at(viewFitArea) ) ||
-                ( anAction == _viewActions->at(viewZoom) ) ||
-                ( anAction == _viewActions->at(viewPan) ) ||
-                ( anAction == _viewActions->at(viewGlobalPan) ) ||
-                ( anAction == _viewActions->at(viewRotation) ) )
-        {
-            setCursor( *defCursor );
-            anAction->setCheckable( true );
-            anAction->setChecked( false );
-        }
-    }
-}
+//void occView::noActiveActions()
+//{
+//    for (int i = viewFitAll; i < viewHlrOff ; i++ )
+//    {
+//        QAction* anAction = _viewActions->at(i);
+//        if( ( anAction == _viewActions->at(viewFitArea) ) ||
+//                ( anAction == _viewActions->at(viewZoom) ) ||
+//                ( anAction == _viewActions->at(viewPan) ) ||
+//                ( anAction == _viewActions->at(viewGlobalPan) ) ||
+//                ( anAction == _viewActions->at(viewRotation) ) )
+//        {
+//            setCursor( *defCursor );
+//            anAction->setCheckable( true );
+//            anAction->setChecked( false );
+//        }
+//    }
+//}
 
 void occView::onBackground()
 {

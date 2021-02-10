@@ -76,7 +76,7 @@ public:
     void init();
     bool dump (Standard_CString file);
 
-    void noActiveActions();
+//    void noActiveActions();
     void isShadingMode();
 
     void enableRaytracing();
@@ -108,33 +108,37 @@ public:
     const Handle(AIS_InteractiveContext)& getContext() const {return _context;};
     const Handle(Graphic3d_Structure)& getStruct() const {return _struct;}
 
-    QList<QAction*>* getViewActions();
+    //QList<QAction*>* getViewActions();
     QList<QAction*>* getRaytraceActions();
 
 signals:
     void selectionChanged();
 
 public slots:
-    // operations for the view.
+    // mouse operations
     void orbit() {setCurAction(curAction3d::Nothing);}
     void select() {setCurAction(curAction3d::Selecting);}
-    void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
-    void fitArea() {setCurAction(curAction3d::WindowZooming);}
     void zoom() {setCurAction(curAction3d::DynamicZooming);}
     void pan() {setCurAction(curAction3d::DynamicPanning);}
     void globalPan() { _curZoom = _view->Scale(); _view->FitAll(); setCurAction(curAction3d::GlobalPanning);}
+    void rotation() {setCurAction(curAction3d::DynamicRotation);}
+    //standard views
     void front() {_view->SetProj(V3d_Yneg);_view->FitAll();}
-    void back() {_view->SetProj(V3d_Ypos);}
+    void back() {_view->SetProj(V3d_Ypos);_view->FitAll();}
     void top() {_view->SetProj(V3d_Zpos);}
     void bottom() {_view->SetProj(V3d_Zneg);}
     void left() {_view->SetProj(V3d_Xneg);}
     void right() {_view->SetProj(V3d_Xpos);}
     void axo() {_view->SetProj(V3d_XposYnegZpos); _view->FitAll();}
-    void rotation() {setCurAction(curAction3d::DynamicRotation);}
+    // fit to screen or selections
+    void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
+    void fitArea() {setCurAction(curAction3d::WindowZooming);}
     void reset() {fitAll();};
 
+    // hidden line removal on/off
     void hlrOn();
     void hlrOff();
+    // change background or raytracing mode
     void updateToggled( bool );
     void onBackground();
     void onEnvironmentMap();
@@ -207,7 +211,7 @@ private:
     QMenu* _backMenu {nullptr};
 
     void initCursors();
-    void initViewActions();
+//    void initViewActions();
     void initRaytraceActions();
 };
 

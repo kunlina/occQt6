@@ -96,6 +96,7 @@ HEADERS += \
     src/emptyspacerwidget.h \
     src/hirespixmap.h \
     src/occview.h \
+    src/occviewcontextmenu.h \
     src/occwidget.h \
     src/occwindow.h
 
@@ -105,6 +106,7 @@ SOURCES += \
     src/emptyspacerwidget.cpp \
     src/main.cpp \
     src/occview.cpp \
+    src/occviewcontextmenu.cpp \
     src/occwidget.cpp \
     src/occwindow.cpp
 
