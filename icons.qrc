@@ -29,5 +29,9 @@
         <file>icons/boxBack.svg</file>
         <file>icons/boxFront.svg</file>
         <file>icons/lucide/eye.svg</file>
+        <file>icons/boxBottom.svg</file>
+        <file>icons/boxLeft.svg</file>
+        <file>icons/boxRight.svg</file>
+        <file>icons/boxTop.svg</file>
     </qresource>
 </RCC>

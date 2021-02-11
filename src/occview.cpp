@@ -700,6 +700,10 @@ void occView::popup(int /*x*/, int /*y*/)
         connect(&contextMenu, &occViewContextMenu::axo, this, &occView::axo);
         connect(&contextMenu, &occViewContextMenu::front, this, &occView::front);
         connect(&contextMenu, &occViewContextMenu::back, this, &occView::back);
+        connect(&contextMenu, &occViewContextMenu::left, this, &occView::left);
+        connect(&contextMenu, &occViewContextMenu::right, this, &occView::right);
+        connect(&contextMenu, &occViewContextMenu::top, this, &occView::top);
+        connect(&contextMenu, &occViewContextMenu::bottom, this, &occView::bottom);
 
         // execute menu
         contextMenu.exec(QCursor::pos());

@@ -72,14 +72,36 @@ void occViewContextMenu::addViewActions(QMenu &viewMenu)
     a->setToolTip("View from front");
     a->setIcon(hiresPixmap(":/icons/boxFront.svg", _iconHeight));
     connect(a, &QAction::triggered, this, &occViewContextMenu::front);
-    //        viewActions.insert(viewFront, a );
     viewMenu.addAction(a);
 
     a = new QAction("Back", this );
     a->setToolTip("View from back");
     a->setIcon(hiresPixmap(":/icons/boxBack.svg", _iconHeight));
     connect(a, &QAction::triggered, this, &occViewContextMenu::back);
-    //        viewActions.insert(viewFront, a );
+    viewMenu.addAction(a);
+
+    a = new QAction("Left", this );
+    a->setToolTip("View from left");
+    a->setIcon(hiresPixmap(":/icons/boxLeft.svg", _iconHeight));
+    connect(a, &QAction::triggered, this, &occViewContextMenu::left);
+    viewMenu.addAction(a);
+
+    a = new QAction("Right", this );
+    a->setToolTip("View from right");
+    a->setIcon(hiresPixmap(":/icons/boxRight.svg", _iconHeight));
+    connect(a, &QAction::triggered, this, &occViewContextMenu::right);
+    viewMenu.addAction(a);
+
+    a = new QAction("Top", this );
+    a->setToolTip("View from top");
+    a->setIcon(hiresPixmap(":/icons/boxTop.svg", _iconHeight));
+    connect(a, &QAction::triggered, this, &occViewContextMenu::top);
+    viewMenu.addAction(a);
+
+    a = new QAction("Bottom", this );
+    a->setToolTip("View from bottom");
+    a->setIcon(hiresPixmap(":/icons/boxBottom.svg", _iconHeight));
+    connect(a, &QAction::triggered, this, &occViewContextMenu::bottom);
     viewMenu.addAction(a);
 
     //        a = new QAction(QObject::tr("MNU_BACK"), this );

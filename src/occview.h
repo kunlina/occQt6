@@ -125,15 +125,15 @@ public slots:
     //standard views
     void front() {_view->SetProj(V3d_Yneg);_view->FitAll();}
     void back() {_view->SetProj(V3d_Ypos);_view->FitAll();}
-    void top() {_view->SetProj(V3d_Zpos);}
-    void bottom() {_view->SetProj(V3d_Zneg);}
-    void left() {_view->SetProj(V3d_Xneg);}
-    void right() {_view->SetProj(V3d_Xpos);}
+    void top() {_view->SetProj(V3d_Zpos);_view->FitAll();}
+    void bottom() {_view->SetProj(V3d_Zneg);_view->FitAll();}
+    void left() {_view->SetProj(V3d_Xneg);_view->FitAll();}
+    void right() {_view->SetProj(V3d_Xpos);_view->FitAll();}
     void axo() {_view->SetProj(V3d_XposYnegZpos); _view->FitAll();}
     // fit to screen or selections
     void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
     void fitArea() {setCurAction(curAction3d::WindowZooming);}
-    void reset() {fitAll();};
+    void reset() {axo();};
 
     // hidden line removal on/off
     void hlrOn();

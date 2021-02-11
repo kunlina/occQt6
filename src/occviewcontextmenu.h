@@ -18,6 +18,10 @@ signals:
     void axo();
     void front();
     void back();
+    void left();
+    void right();
+    void top();
+    void bottom();
 
 private:
 
