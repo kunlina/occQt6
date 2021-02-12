@@ -97,6 +97,7 @@ HEADERS += \
     src/hirespixmap.h \
     src/occview.h \
     src/occviewcontextmenu.h \
+    src/occviewenums.h \
     src/occwidget.h \
     src/occwindow.h
 

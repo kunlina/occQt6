@@ -95,23 +95,17 @@ occView::occView(QWidget *parent) : QWidget(parent), _devPx(devicePixelRatio())
     init();
 
     _mouseDefaultGestures = myMouseGestureMap;
-    _curMode = curAction3d::Nothing;
+    _curMode = occViewEnums::curAction3d::Nothing;
 
-    //initViewActions();
     initCursors();
-
-    // No Background
-//    setBackgroundRole( QPalette::NoRole);
 
     // set focus policy to threat QContextMenuEvent from keyboard
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_PaintOnScreen);
-//    setAttribute(Qt::WA_NoSystemBackground);
 
-    // Enable the mouse tracking, by default the mouse tracking is disabled.
+    // Enable mouse tracking, by default mouse tracking is disabled.
     setMouseTracking(true);
 
-    //init();
     this->update();
 }
 
@@ -148,6 +142,8 @@ void occView::init()
     // Create an interactive context.
     _context = new AIS_InteractiveContext(_viewer);
     _context->SetDisplayMode(AIS_Shaded, Standard_True);
+
+    _curDrawStyle = occViewEnums::drawStyle::shadedWithEdges;
 
     if ( _view.IsNull() )
         _view = _context->CurrentViewer()->CreateView();
@@ -210,11 +206,23 @@ void occView::OnSelectionChanged(const Handle(AIS_InteractiveContext)&,
     emit selectionChanged();
 }
 
+void occView::wireframe()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    _view->SetComputedMode(false);
+    _context->SetDisplayMode(AIS_Shaded, Standard_False);
+    _context->SetDisplayMode(AIS_WireFrame, Standard_True);
+    _curDrawStyle = occViewEnums::drawStyle::wireframe;
+    _view->Redraw();
+    QApplication::restoreOverrideCursor();
+}
+
 void occView::hlrOn()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     _view->SetComputedMode(true);
     _view->Redraw();
+    _curDrawStyle = occViewEnums::drawStyle::hlrOn;
     QApplication::restoreOverrideCursor();
 }
 
@@ -224,6 +232,17 @@ void occView::hlrOff()
     _view->SetComputedMode(false);
     _view->Redraw();
     QApplication::restoreOverrideCursor();
+}
+
+void occView::shaded()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    _context->SetDisplayMode(AIS_Shaded, Standard_True);
+    _view->SetComputedMode(false);
+    _view->Redraw();
+    _curDrawStyle = occViewEnums::drawStyle::shaded;
+    QApplication::restoreOverrideCursor();
+
 }
 
 void occView::setRaytracedShadows(bool state)
@@ -245,9 +264,9 @@ void occView::onRaytraceAction()
 {
     auto sentBy = qobject_cast<QAction*>(sender());
 
-    if (sentBy == _raytraceActions->at(toolRaytracingId))
+    if (sentBy == _raytraceActions->at(occViewEnums::toolRaytracingId))
     {
-        bool state = _raytraceActions->at(toolRaytracingId)->isChecked();
+        bool state = _raytraceActions->at(occViewEnums::toolRaytracingId)->isChecked();
         QApplication::setOverrideCursor(Qt::WaitCursor);
         if (state)
             enableRaytracing();
@@ -256,14 +275,14 @@ void occView::onRaytraceAction()
         QApplication::restoreOverrideCursor();
     }
 
-    if (sentBy == _raytraceActions->at(toolShadowsId))
-        setRaytracedShadows(_raytraceActions->at(toolShadowsId)->isChecked());
+    if (sentBy == _raytraceActions->at(occViewEnums::toolShadowsId))
+        setRaytracedShadows(_raytraceActions->at(occViewEnums::toolShadowsId)->isChecked());
 
-    if (sentBy == _raytraceActions->at(toolReflectionsId))
-        setRaytracedReflections(_raytraceActions->at(toolReflectionsId)->isChecked());
+    if (sentBy == _raytraceActions->at(occViewEnums::toolReflectionsId))
+        setRaytracedReflections(_raytraceActions->at(occViewEnums::toolReflectionsId)->isChecked());
 
-    if (sentBy == _raytraceActions->at(toolAntialiasingId))
-        setRaytracedAntialiasing (_raytraceActions->at(toolAntialiasingId)->isChecked());
+    if (sentBy == _raytraceActions->at(occViewEnums::toolAntialiasingId))
+        setRaytracedAntialiasing (_raytraceActions->at(occViewEnums::toolAntialiasingId)->isChecked());
 }
 
 
@@ -302,15 +321,15 @@ void occView::updateToggled(bool isOn)
     if( !isOn )
         return;
 
-    for (int i = viewFitAll; i < viewHlrOff; i++ )
+    for (int i = occViewEnums::viewFitAll; i < occViewEnums::viewHlrOff; i++ )
     {
         QAction* action = _viewActions->at(i);
 
-        if ( ( action == _viewActions->at( viewFitArea ) ) ||
-             ( action == _viewActions->at( viewZoom ) ) ||
-             ( action == _viewActions->at( viewPan ) ) ||
-             ( action == _viewActions->at( viewGlobalPan ) ) ||
-             ( action == _viewActions->at( viewRotation ) ) )
+        if ( ( action == _viewActions->at( occViewEnums::viewFitArea ) ) ||
+             ( action == _viewActions->at( occViewEnums::viewZoom ) ) ||
+             ( action == _viewActions->at( occViewEnums::viewPan ) ) ||
+             ( action == _viewActions->at( occViewEnums::viewGlobalPan ) ) ||
+             ( action == _viewActions->at( occViewEnums::viewRotation ) ) )
         {
             if ( action && ( action != sentBy ) )
             {
@@ -319,15 +338,15 @@ void occView::updateToggled(bool isOn)
             }
             else
             {
-                if (sentBy == _viewActions->at(viewFitArea))
+                if (sentBy == _viewActions->at(occViewEnums::viewFitArea))
                     setCursor( *handCursor );
-                else if ( sentBy == _viewActions->at(viewZoom) )
+                else if ( sentBy == _viewActions->at(occViewEnums::viewZoom) )
                     setCursor( *zoomCursor );
-                else if ( sentBy == _viewActions->at(viewPan) )
+                else if ( sentBy == _viewActions->at(occViewEnums::viewPan) )
                     setCursor( *panCursor );
-                else if ( sentBy == _viewActions->at(viewGlobalPan) )
+                else if ( sentBy == _viewActions->at(occViewEnums::viewGlobalPan) )
                     setCursor( *globPanCursor );
-                else if ( sentBy == _viewActions->at(viewRotation) )
+                else if ( sentBy == _viewActions->at(occViewEnums::viewRotation) )
                     setCursor( *rotCursor );
                 else
                     setCursor( *defCursor );
@@ -509,7 +528,7 @@ void occView::initRaytraceActions()
     a->setCheckable( true );
     a->setChecked( false );
     connect( a, &QAction::triggered, this, &occView::onRaytraceAction);
-    _raytraceActions->insert(toolRaytracingId, a );
+    _raytraceActions->insert(occViewEnums::toolRaytracingId, a );
 
     a = new QAction(QObject::tr("MNU_TOOL_SHADOWS"), this );
     a->setToolTip( QObject::tr("TBR_TOOL_SHADOWS") );
@@ -517,7 +536,7 @@ void occView::initRaytraceActions()
     a->setCheckable( true );
     a->setChecked( true );
     connect(a, &QAction::triggered, this, &occView::onRaytraceAction);
-    _raytraceActions->insert(toolShadowsId, a );
+    _raytraceActions->insert(occViewEnums::toolShadowsId, a );
 
     a = new QAction(QObject::tr("MNU_TOOL_REFLECTIONS"), this );
     a->setToolTip( QObject::tr("TBR_TOOL_REFLECTIONS") );
@@ -525,7 +544,7 @@ void occView::initRaytraceActions()
     a->setCheckable( true );
     a->setChecked( false );
     connect(a, &QAction::triggered, this, &occView::onRaytraceAction);
-    _raytraceActions->insert(toolReflectionsId, a );
+    _raytraceActions->insert(occViewEnums::toolReflectionsId, a );
 
     a = new QAction(QObject::tr("MNU_TOOL_ANTIALIASING"), this );
     a->setToolTip( QObject::tr("TBR_TOOL_ANTIALIASING") );
@@ -533,30 +552,30 @@ void occView::initRaytraceActions()
     a->setCheckable( true );
     a->setChecked( false );
     connect(a, &QAction::triggered, this, &occView::onRaytraceAction);
-    _raytraceActions->insert(toolAntialiasingId, a );
+    _raytraceActions->insert(occViewEnums::toolAntialiasingId, a );
 }
 
 
-void occView::activateCursor(const curAction3d mode)
+void occView::activateCursor(occViewEnums::curAction3d mode)
 {
     switch( mode )
     {
-    case curAction3d::DynamicPanning:
+    case occViewEnums::curAction3d::DynamicPanning:
         setCursor( *panCursor );
         break;
-    case curAction3d::DynamicZooming:
+    case occViewEnums::curAction3d::DynamicZooming:
         setCursor( *zoomCursor );
         break;
-    case curAction3d::DynamicRotation:
+    case occViewEnums::curAction3d::DynamicRotation:
         setCursor( *rotCursor );
         break;
-    case curAction3d::GlobalPanning:
+    case occViewEnums::curAction3d::GlobalPanning:
         setCursor( *globPanCursor );
         break;
-    case curAction3d::WindowZooming:
+    case occViewEnums::curAction3d::WindowZooming:
         setCursor( *handCursor );
         break;
-    case curAction3d::Nothing:
+    case occViewEnums::curAction3d::Nothing:
     default:
         setCursor( *defCursor );
         break;
@@ -585,12 +604,12 @@ void occView::mouseReleaseEvent(QMouseEvent* event)
         updateView();
 
 
-    if (_curMode == curAction3d::GlobalPanning)
+    if (_curMode == occViewEnums::curAction3d::GlobalPanning)
         _view->Place(point.x(), point.y(), _curZoom);
 
     // required to reset mouse mode, e.g. after WindowZooming
-    if (_curMode != curAction3d::Nothing)
-        setCurAction(curAction3d::Nothing);
+    if (_curMode != occViewEnums::curAction3d::Nothing)
+        setCurAction(occViewEnums::curAction3d::Nothing);
 
     if (event->button() == Qt::RightButton && (flags & Aspect_VKeyFlags_CTRL) == 0 && (_clickPos - point).cwiseAbs().maxComp() <= 4)
         popup(point.x(), point.y());
@@ -635,25 +654,25 @@ void occView::defineMouseGestures()
     activateCursor(_curMode);
     switch (_curMode)
     {
-    case curAction3d::Nothing:
+    case occViewEnums::curAction3d::Nothing:
         //noActiveActions();
         myMouseGestureMap = _mouseDefaultGestures;
         break;
-    case curAction3d::DynamicZooming:
+    case occViewEnums::curAction3d::DynamicZooming:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_Zoom);
         break;
-    case curAction3d::GlobalPanning:
+    case occViewEnums::curAction3d::GlobalPanning:
         break;
-    case curAction3d::WindowZooming:
+    case occViewEnums::curAction3d::WindowZooming:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_ZoomWindow);
         break;
-    case curAction3d::DynamicPanning:
+    case occViewEnums::curAction3d::DynamicPanning:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_Pan);
         break;
-    case curAction3d::DynamicRotation:
+    case occViewEnums::curAction3d::DynamicRotation:
         myMouseGestureMap.Bind (Aspect_VKeyMouse_LeftButton, aRot);
         break;
-    case curAction3d::Selecting:
+    case occViewEnums::curAction3d::Selecting:
         myMouseGestureMap.Bind(Aspect_VKeyMouse_LeftButton, AIS_MouseGesture_SelectRectangle);
         break;
     }
@@ -692,7 +711,7 @@ void occView::popup(int /*x*/, int /*y*/)
     }
     else
     {
-        auto contextMenu = occViewContextMenu(nullptr);
+        auto contextMenu = occViewContextMenu(nullptr, _curDrawStyle);
 
         //connections
         connect(&contextMenu, &occViewContextMenu::fitAll, this, &occView::fitAll);
@@ -704,6 +723,9 @@ void occView::popup(int /*x*/, int /*y*/)
         connect(&contextMenu, &occViewContextMenu::right, this, &occView::right);
         connect(&contextMenu, &occViewContextMenu::top, this, &occView::top);
         connect(&contextMenu, &occViewContextMenu::bottom, this, &occView::bottom);
+        connect(&contextMenu, &occViewContextMenu::wireframe, this, &occView::wireframe);
+        connect(&contextMenu, &occViewContextMenu::hlrOn, this, &occView::hlrOn);
+        connect(&contextMenu, &occViewContextMenu::shaded, this, &occView::shaded);
 
         // execute menu
         contextMenu.exec(QCursor::pos());

@@ -21,48 +21,16 @@
 #include <AIS_ViewController.hxx>
 #include <V3d_View.hxx>
 
+//project headers
+#include "occviewenums.h"
+
 class TopoDS_Shape;
 
 class occView : public QWidget, protected AIS_ViewController
 {
     Q_OBJECT
-    enum class curAction3d {
-        Nothing,
-        DynamicZooming,
-        WindowZooming,
-        DynamicPanning,
-        GlobalPanning,
-        DynamicRotation,
-        Selecting
-    };
 
 public:
-
-    enum viewAction {
-        viewFitAll,
-        viewFitArea,
-        viewZoom,
-        viewPan,
-        viewGlobalPan,
-        viewFront,
-        viewBack,
-        viewTop,
-        viewBottom,
-        viewLeft,
-        viewRight,
-        viewAxo,
-        viewRotation,
-        viewReset,
-        viewHlrOff,
-        viewHlrOn
-    };
-
-
-    enum raytraceAction { toolRaytracingId,
-                          toolShadowsId,
-                          toolReflectionsId,
-                          toolAntialiasingId
-                        };
 
     // constructor
     occView(QWidget* parent = nullptr );
@@ -116,12 +84,12 @@ signals:
 
 public slots:
     // mouse operations
-    void orbit() {setCurAction(curAction3d::Nothing);}
-    void select() {setCurAction(curAction3d::Selecting);}
-    void zoom() {setCurAction(curAction3d::DynamicZooming);}
-    void pan() {setCurAction(curAction3d::DynamicPanning);}
-    void globalPan() { _curZoom = _view->Scale(); _view->FitAll(); setCurAction(curAction3d::GlobalPanning);}
-    void rotation() {setCurAction(curAction3d::DynamicRotation);}
+    void orbit() {setCurAction(occViewEnums::curAction3d::Nothing);}
+    void select() {setCurAction(occViewEnums::curAction3d::Selecting);}
+    void zoom() {setCurAction(occViewEnums::curAction3d::DynamicZooming);}
+    void pan() {setCurAction(occViewEnums::curAction3d::DynamicPanning);}
+    void globalPan() { _curZoom = _view->Scale(); _view->FitAll(); setCurAction(occViewEnums::curAction3d::GlobalPanning);}
+    void rotation() {setCurAction(occViewEnums::curAction3d::DynamicRotation);}
     //standard views
     void front() {_view->SetProj(V3d_Yneg);_view->FitAll();}
     void back() {_view->SetProj(V3d_Ypos);_view->FitAll();}
@@ -132,12 +100,15 @@ public slots:
     void axo() {_view->SetProj(V3d_XposYnegZpos); _view->FitAll();}
     // fit to screen or selections
     void fitAll() { _view->FitAll(); _view->ZFitAll(); _view->Redraw();}
-    void fitArea() {setCurAction(curAction3d::WindowZooming);}
+    void fitArea() {setCurAction(occViewEnums::curAction3d::WindowZooming);}
     void reset() {axo();};
 
-    // hidden line removal on/off
-    void hlrOn();
+    // draw styles
+    void wireframe();
+    void hlrOn(); // hidden line removal on/off
     void hlrOff();
+    void shaded();
+
     // change background or raytracing mode
     void updateToggled( bool );
     void onBackground();
@@ -161,9 +132,10 @@ protected:
     virtual void addItemInPopup(QMenu* );
 
     // getters
-    curAction3d getCurrentMode() {return _curMode;}
+    occViewEnums::curAction3d getCurrentMode() {return _curMode;}
+    occViewEnums::drawStyle getCurrentDrawStyle() { return _curDrawStyle;}
 
-    void activateCursor(curAction3d);
+    void activateCursor(occViewEnums::curAction3d);
     void popup(int x, int y );
     void updateView();
 
@@ -171,7 +143,7 @@ protected:
     void defineMouseGestures();
 
     // Set current action.
-    void setCurAction (curAction3d action) { _curMode = action;
+    void setCurAction (occViewEnums::curAction3d action) { _curMode = action;
                                              defineMouseGestures();
                                            }
 
@@ -203,7 +175,8 @@ private:
 
     AIS_MouseGestureMap _mouseDefaultGestures;
     Graphic3d_Vec2i _clickPos;
-    curAction3d _curMode;
+    occViewEnums::curAction3d _curMode;
+    occViewEnums::drawStyle _curDrawStyle;
     Standard_Real _curZoom {0};
 
     QList<QAction*>* _viewActions {0};

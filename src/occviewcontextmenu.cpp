@@ -6,7 +6,10 @@
 
 #include "hirespixmap.h"
 
-occViewContextMenu::occViewContextMenu(QWidget *parent) : QMenu(parent)
+occViewContextMenu::occViewContextMenu(QWidget *parent,
+                                       occViewEnums::drawStyle drawStyle)
+    : QMenu(parent),
+      _curDrawStyle(drawStyle)
 {
     _iconHeight = QProxyStyle().pixelMetric(QStyle::PM_SmallIconSize, 0, 0);
 
@@ -27,41 +30,14 @@ occViewContextMenu::occViewContextMenu(QWidget *parent) : QMenu(parent)
     auto viewMenu = this->addMenu("Views");
     viewMenu->setIcon(hiresPixmap(":/icons/lucide/eye.svg", _iconHeight));
     addViewActions(*viewMenu);
+
+    auto drawMenu = this->addMenu("Draw style");
+    addDrawStyles(*drawMenu);
 }
 
 
 void occViewContextMenu::addViewActions(QMenu &viewMenu)
 {
-
-//    auto viewActions = QList<QAction*>();
-
-    //        a = new QAction(QObject::tr("MNU_ZOOM"), this );
-    //        a->setToolTip( QObject::tr("TBR_ZOOM") );
-    //        a->setStatusTip( QObject::tr("TBR_ZOOM") );
-    ////        connect(a, &QAction::triggered, this, &occView::zoom);
-
-    //        a->setCheckable(true);
-    ////        connect(a, &QAction::toggled, this, &occView::updateToggled);
-    //        _viewActions->insert(viewZoom, a );
-
-    //        a = new QAction(QObject::tr("MNU_PAN"), this );
-    //        a->setToolTip( QObject::tr("TBR_PAN") );
-    //        a->setStatusTip( QObject::tr("TBR_PAN") );
-    ////        connect(a, &QAction::triggered, this, &occView::pan);
-
-    //        a->setCheckable(true);
-    ////        connect(a, &QAction::toggled, this, &occView::updateToggled);
-    //        _viewActions->insert(viewPan, a );
-
-    //        a = new QAction(QObject::tr("MNU_GLOBALPAN"), this );
-    //        a->setToolTip( QObject::tr("TBR_GLOBALPAN") );
-    //        a->setStatusTip( QObject::tr("TBR_GLOBALPAN") );
-    ////        connect(a, &QAction::triggered, this, &occView::globalPan);
-
-    //        a->setCheckable(true);
-    ////        connect(a, &QAction::toggled, this, &occView::updateToggled);
-    //        _viewActions->insert(viewGlobalPan, a );
-
     auto a = new QAction("Isometric", this );
     a->setToolTip("View isometric");
     a->setIcon(hiresPixmap(":/icons/lucide/box.svg", _iconHeight));
@@ -103,71 +79,57 @@ void occViewContextMenu::addViewActions(QMenu &viewMenu)
     a->setIcon(hiresPixmap(":/icons/boxBottom.svg", _iconHeight));
     connect(a, &QAction::triggered, this, &occViewContextMenu::bottom);
     viewMenu.addAction(a);
-
-    //        a = new QAction(QObject::tr("MNU_BACK"), this );
-    //        a->setToolTip( QObject::tr("TBR_BACK") );
-    //        a->setStatusTip( QObject::tr("TBR_BACK") );
-    ////        connect(a, &QAction::triggered, this, &occView::back);
-    //        _viewActions->insert(viewBack, a);
-
-    //        a = new QAction(QObject::tr("MNU_TOP"), this );
-    //        a->setToolTip( QObject::tr("TBR_TOP") );
-    //        a->setStatusTip( QObject::tr("TBR_TOP") );
-    ////        connect(a, &QAction::triggered, this, &occView::top);
-    //        _viewActions->insert(viewTop, a );
-
-    //        a = new QAction(QObject::tr("MNU_BOTTOM"), this );
-    //        a->setToolTip( QObject::tr("TBR_BOTTOM") );
-    //        a->setStatusTip( QObject::tr("TBR_BOTTOM") );
-    ////        connect(a, &QAction::triggered, this, &occView::bottom);
-    //        _viewActions->insert(viewBottom, a );
-
-    //        a = new QAction(QObject::tr("MNU_LEFT"), this );
-    //        a->setToolTip( QObject::tr("TBR_LEFT") );
-    //        a->setStatusTip( QObject::tr("TBR_LEFT") );
-    ////        connect(a, &QAction::triggered, this, &occView::left);
-    //        _viewActions->insert(viewLeft, a );
-
-    //        a = new QAction(QObject::tr("MNU_RIGHT"), this );
-    //        a->setToolTip( QObject::tr("TBR_RIGHT") );
-    //        a->setStatusTip( QObject::tr("TBR_RIGHT") );
-    ////        connect(a, &QAction::triggered, this, &occView::right);
-    //        _viewActions->insert(viewRight, a );
+}
 
 
+void occViewContextMenu::addDrawStyles(QMenu &drawMenu)
+{
+    auto points = new QAction("Points", this );
+    points->setToolTip("Show objects as points");
+    connect(points, &QAction::triggered, this, &occViewContextMenu::points);
+    points->setCheckable( true );
 
-    //        a = new QAction(QObject::tr("MNU_ROTATION"), this );
-    //        a->setToolTip( QObject::tr("TBR_ROTATION") );
-    //        a->setStatusTip( QObject::tr("TBR_ROTATION") );
-    ////        connect(a, &QAction::triggered, this, &occView::rotation);
-    //        a->setCheckable( true );
-    ////        connect(a, &QAction::toggled, this, &occView::updateToggled);
-    //        _viewActions->insert(viewRotation, a );
+    auto wireframe = new QAction("Wireframe", this );
+    wireframe->setToolTip("Show wireframe objects");
+    connect(wireframe, &QAction::triggered, this, &occViewContextMenu::wireframe);
+    wireframe->setCheckable( true );
 
-    //        a = new QAction(QObject::tr("MNU_RESET"), this );
-    //        a->setToolTip( QObject::tr("TBR_RESET") );
-    //        a->setStatusTip( QObject::tr("TBR_RESET") );
-    ////        connect(a, &QAction::triggered, this, &occView::reset);
-    //        _viewActions->insert(viewReset, a );
+    auto hlr = new QAction("Hidden line removal", this );
+    hlr->setToolTip("Remove hidden lines");
+    connect(hlr, &QAction::triggered, this, &occViewContextMenu::hlrOn);
+    hlr->setCheckable( true );
 
-    //        QActionGroup* ag = new QActionGroup(this);
+    auto shaded = new QAction("Shaded", this );
+    shaded->setToolTip("Show shaded objects");
+    connect(shaded, &QAction::triggered, this, &occViewContextMenu::shaded);
+    shaded->setCheckable( true );
 
-    //        a = new QAction(QObject::tr("MNU_HLROFF"), this );
-    //        a->setToolTip( QObject::tr("TBR_HLROFF") );
-    //        a->setStatusTip( QObject::tr("TBR_HLROFF") );
-    ////        connect(a, &QAction::triggered, this, &occView::hlrOff);
-    //        a->setCheckable( true );
-    //        ag->addAction(a);
-    //        _viewActions->insert(viewHlrOff, a);
+    auto shadedWEdges = new QAction("Shaded with edges", this );
+    shadedWEdges->setToolTip("Show shaded objects with edges");
+    connect(shadedWEdges, &QAction::triggered, this, &occViewContextMenu::shadedWithEdges);
+    shadedWEdges->setCheckable( true );
 
-    //        a = new QAction(QObject::tr("MNU_HLRON"), this );
-    //        a->setToolTip( QObject::tr("TBR_HLRON") );
-    //        a->setStatusTip( QObject::tr("TBR_HLRON") );
-    ////        connect(a, &QAction::triggered,this, &occView::hlrOn);
+    switch (_curDrawStyle) {
+    case occViewEnums::drawStyle::points:
+        points->setChecked(true);
+        break;
+    case occViewEnums::drawStyle::wireframe:
+        wireframe->setChecked(true);
+        break;
+    case occViewEnums::drawStyle::hlrOn:
+        hlr->setChecked(true);
+        break;
+    case occViewEnums::drawStyle::shaded:
+        shaded->setChecked(true);
+        break;
+    case occViewEnums::drawStyle::shadedWithEdges:
+        shadedWEdges->setChecked(true);
+        break;
+    }
 
-    //        a->setCheckable( true );
-    //        ag->addAction(a);
-    //        _viewActions->insert(viewHlrOn, a );
-
-
+    drawMenu.addAction(points);
+    drawMenu.addAction(wireframe);
+    drawMenu.addAction(hlr);
+    drawMenu.addAction(shaded);
+    drawMenu.addAction(shadedWEdges);
 }

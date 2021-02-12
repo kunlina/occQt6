@@ -97,10 +97,6 @@
 occWidget::occWidget(QWidget *parent)
     : QWidget(parent)
 {
-    //    _hudWidget = new hudWidget(this);
-    //   _hudWidget->show();
-    //    _hudWidget->setWindowFlags(Qt::FramelessWindowHint);// | Qt::WindowStaysOnTopHint);
-
     // add toolBar
     auto layout = new QVBoxLayout(this);
     layout->setSpacing(0);
@@ -115,48 +111,15 @@ occWidget::occWidget(QWidget *parent)
     this->setLayout(layout);
     this->populateToolBar();
 
-
     // show and force size update to redraw occt window
     this->show();
     this->setMinimumSize(QSize(800,600));
     this->setWindowTitle("Qt6 with OpenCASCADE demo - occQt6");
-    //    this->raise();
-    //    _hudWidget->raise();
-
-    // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
 }
 
 // ------------------------------------------------------------------------------------------------
 // protected functions
 // ------------------------------------------------------------------------------------------------
-void occWidget::closeEvent(QCloseEvent* event)
-{
-    //    _hudWidget->close();
-    //    delete _hudWidget;
-    event->accept();
-}
-
-
-bool occWidget::event(QEvent *event)
-{
-    //    switch (event->type())
-    //    {
-    //    case QEvent::Show:
-    //        _hudWidget->show();
-    //        QTimer::singleShot(50, this, [=](){hudWidgetMove();});
-    //        //Wait until the Main Window be shown
-    //        break;
-    //    case QEvent::WindowActivate:
-    //    case QEvent::Resize:
-    //    case QEvent::Move:
-    //        hudWidgetMove();
-    //        break;
-    //    default:
-    //        break;
-    //    }
-
-    return QWidget::event(event);
-}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -201,18 +164,6 @@ QAction* occWidget::addActionToToolBar(QString iconText,
     return action;
 }
 
-
-void occWidget::hudWidgetMove()
-{
-    //    if (_hudWidget)
-    //    {
-    //        // bottom left
-    //        const int pX =  this->contentsMargins().left();
-    //        const int pY = this->height() - this->contentsMargins().bottom() - _hudWidget->height();
-    //        _hudWidget->move(mapToGlobal(QPoint(pX,pY)));
-    //        _hudWidget->raise();
-    //    }
-}
 
 void occWidget::populateToolBar()
 {
