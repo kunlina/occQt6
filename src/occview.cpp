@@ -627,7 +627,11 @@ void occView::mouseMoveEvent(QMouseEvent* event)
 void occView::wheelEvent(QWheelEvent* event)
 {
     Graphic3d_Vec2i pos;
+#if (QT_VERSION_MAJOR > 5) || (QT_VERSION_MAJOR == 5 && QT_VERSION_MINOR > 12)
     pos.SetValues(event->position().x(), event->position().y());
+#else
+    pos.SetValues(event->pos().x(), event->pos().y());
+#endif
     int numPixels = event->pixelDelta().y();
     int numDegrees = event->angleDelta().y() / 8;
 

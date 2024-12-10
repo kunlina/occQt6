@@ -27,9 +27,10 @@
 include(src/qmake-target-platform.pri)
 include(src/qmake-destination-path.pri)
 
-QT       += core gui svg openglwidgets
+QT       += core gui svg 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += openglwidgets
 
 TARGET = occQt6
 TEMPLATE = app
@@ -37,6 +38,11 @@ TEMPLATE = app
 win32 {
 CAS_INC_DIR = C:/occt/inc
 CAS_LIB_DIR = C:/occt/win64/vc19/lib
+}
+
+unix {
+CAS_INC_DIR = /usr/local/include/opencascade
+CAS_LIB_DIR = /usr/local/lib
 }
 
 #macx {
